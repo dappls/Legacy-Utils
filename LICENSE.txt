@@ -1,3 +1,2 @@
 Copyright (c) 2025 
 All rights reserved.
-Credit to my Friend Embber_ for making the lamp solver code
