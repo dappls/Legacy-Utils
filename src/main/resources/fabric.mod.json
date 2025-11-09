@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "legacy_utils",
+  "version": "${version}",
+  "name": "Legacy Utils",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/legacy_utils/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.dappls.legacy_utils.client.Legacy_utilsClient"
+    ],
+    "main": [
+      "net.dappls.legacy_utils.Legacy_utils"
+    ]
+  },
+  "mixins": [
+    "legacy_utils.mixins.json",
+    {
+      "config": "legacy_utils.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

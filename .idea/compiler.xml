@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="24" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="&quot;-AoutRefMapFile=C:\Users\noake\IdeaProjects\Legacy Utils\build\classes\java\client\client-Legacy_Utils-refmap.json&quot; -AdefaultObfuscationEnv=named:intermediary -Aquiet=true &quot;-AoutMapFileNamedIntermediary=C:\Users\noake\IdeaProjects\Legacy Utils\build\loom-cache\mixin-map-net.fabricmc.yarn.1_21_2.1.21.2+build.1-v2.client.tiny&quot; -AinMapFileNamedIntermediary=C:\Users\noake\.gradle\caches\fabric-loom\1.21.2\net.fabricmc.yarn.1_21_2.1.21.2+build.1-v2\mappings.tiny" />
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Legacy_Utils.main" options="&quot;-AoutRefMapFile=C:\Users\noake\IdeaProjects\Legacy Utils\build\classes\java\main\Legacy_Utils-refmap.json&quot; -AdefaultObfuscationEnv=named:intermediary -Aquiet=true &quot;-AoutMapFileNamedIntermediary=C:\Users\noake\IdeaProjects\Legacy Utils\build\loom-cache\mixin-map-net.fabricmc.yarn.1_21_2.1.21.2+build.1-v2.main.tiny&quot; -AinMapFileNamedIntermediary=C:\Users\noake\.gradle\caches\fabric-loom\1.21.2\net.fabricmc.yarn.1_21_2.1.21.2+build.1-v2\mappings.tiny" />
+      <module name="Legacy_Utils.test" options="&quot;-AoutRefMapFile=C:\Users\noake\IdeaProjects\Legacy Utils\build\classes\java\test\test-Legacy_Utils-refmap.json&quot; -AdefaultObfuscationEnv=named:intermediary -Aquiet=true &quot;-AoutMapFileNamedIntermediary=C:\Users\noake\IdeaProjects\Legacy Utils\build\loom-cache\mixin-map-net.fabricmc.yarn.1_21_2.1.21.2+build.1-v2.test.tiny&quot; -AinMapFileNamedIntermediary=C:\Users\noake\.gradle\caches\fabric-loom\1.21.2\net.fabricmc.yarn.1_21_2.1.21.2+build.1-v2\mappings.tiny" />
+    </option>
+  </component>
+</project>
