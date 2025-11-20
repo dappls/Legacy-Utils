@@ -1,6 +1,7 @@
 package net.dappls.legacy_utils.client.GUI;
 
 import net.dappls.legacy_utils.Toggles.DungeonParticleTrail;
+import net.dappls.legacy_utils.Toggles.SpiritParticleTrail;
 import net.dappls.legacy_utils.Toggles.WaterParticleTrail;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -12,6 +13,8 @@ import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
 public class TogglesMenu extends Screen {
+
+
 
     public TogglesMenu() {
         super(Text.literal("Toggle Menu"));
@@ -60,20 +63,28 @@ public class TogglesMenu extends Screen {
                 }).dimensions(centerX, startY + 2 * (buttonHeight + 10), buttonWidth, buttonHeight).build();
         this.addDrawableChild(dungeonButton);
 
+        ButtonWidget spiritButton = ButtonWidget.builder(
+                Text.literal("Spirit: " + getSpiritModeName(SpiritParticleTrail.getCurrentMode())), button -> {
+                    SpiritParticleTrail.cycleMode(); // cycle to next mode
+                    button.setMessage(Text.literal("Spirit: " + getSpiritModeName(SpiritParticleTrail.getCurrentMode())));
+                }).dimensions(centerX, startY + 3 * (buttonHeight + 10), buttonWidth, buttonHeight).build();
+        this.addDrawableChild(spiritButton);
+
 
         ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"), button -> MinecraftClient.getInstance().setScreen(new ModMenu())).dimensions(10, 10, 20, 20).build();
 
         this.addDrawableChild(backButton);
     }
-    private String getModeName(DungeonParticleTrail.TrailMode mode) {
+    private String getModeName(DungeonParticleTrail.DungeonTrailMode mode) {
         return switch (mode) {
             case OFF -> "Disabled";
-            case LAMPS1AND2 -> "Lamps1 & 2";
+            case LAMP1 -> "Lamp 1";
+            case LAMP2 -> "Lamp 2";
             case LAMP3 -> "Lamp 3";
             case WINDCHARGE -> "Wind Charge";
         };
     }
-    private String getWaterModeName(WaterParticleTrail.TrailMode mode) {
+    private String getWaterModeName(WaterParticleTrail.WaterTrailMode mode) {
         return switch (mode) {
             case OFF -> "Disabled";
             case PICKAXE -> "Pickaxe Path";
@@ -81,4 +92,22 @@ public class TogglesMenu extends Screen {
             case CONDUIT -> "Conduit Path";
         };
     }
+    private String getSpiritModeName(SpiritParticleTrail.SpiritTrailMode mode) {
+        return switch (mode) {
+            case OFF -> "disabled";
+            case SEWER1 -> "sewer 1";
+            case SEWER2 -> "sewer 2";
+            case SEWER3 -> "sewer 3";
+            case SEWER4 -> "sewer 4";
+            case VALLEY1 -> "valley 1";
+            case VALLEY2 -> "valley 2";
+            case VALLEY2_5 -> "valley 2.5";
+            case MINESHAFT2_5_1 -> "mineshaft 2.5-1";
+            case MINESHAFT2_5_2 -> "mineshaft 2.5-2";
+            case VALLEY3 -> "valley 3";
+            case MINESHAFT3_1 -> "mineshaft 3-1";
+            case MINESHAFT3_2 -> "mineshaft 3-2";
+        };
+    }
+
 }

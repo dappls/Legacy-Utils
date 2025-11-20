@@ -15,14 +15,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class PositionRecorderScreen extends Screen {
 
     private static boolean recording = false;
-    private static final Set<String> recordedPositions = new HashSet<>();
+    private static final List<String> recordedPositions = new ArrayList<>();
     private static boolean registered = false;
     private TextFieldWidget labelField;
     private static String sessionLabel = "Recorded Session";
@@ -121,7 +121,11 @@ public class PositionRecorderScreen extends Screen {
                 int z = (int) Math.round(pos.z);
 
                 String formatted = String.format("%d, %d, %d", x, y, z);
-                recordedPositions.add(formatted);
+
+                // Avoid duplicate consecutive entries
+                if (recordedPositions.isEmpty() || !recordedPositions.getLast().equals(formatted)) {
+                    recordedPositions.add(formatted);
+                }
             }
         });
     }
@@ -144,5 +148,4 @@ public class PositionRecorderScreen extends Screen {
 
         recordedPositions.clear();
     }
-
 }

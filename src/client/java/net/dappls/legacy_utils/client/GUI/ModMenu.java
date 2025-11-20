@@ -50,17 +50,13 @@ public class ModMenu extends Screen {
             this.addDrawableChild(honeyMazeButton);
 
 
-            ButtonWidget togglesButton = ButtonWidget.builder(Text.literal("Toggles"), (button) -> {
-                client.setScreen(new TogglesMenu());
-            }).dimensions(centerX, startY + (buttonHeight + spacing) * 6, buttonWidth, buttonHeight).build();
+            ButtonWidget togglesButton = ButtonWidget.builder(Text.literal("Toggles"), (button) -> client.setScreen(new TogglesMenu())).dimensions(centerX, startY + (buttonHeight + spacing) * 6, buttonWidth, buttonHeight).build();
             this.addDrawableChild(togglesButton);
 
-            if (client.player != null && "G12w".equals(client.player.getName().getString())) {
-                ButtonWidget devButton = ButtonWidget.builder(Text.literal("DEV Button"), button -> {
-                    client.setScreen(new PositionRecorderScreen());
-                }).dimensions(centerX, startY + (buttonHeight + spacing) * 7, buttonWidth, buttonHeight).build();
+//            if (client.player != null && "G12w".equals(client.player.getName().getString())) {
+                ButtonWidget devButton = ButtonWidget.builder(Text.literal("DEV Button"), button -> client.setScreen(new PositionRecorderScreen())).dimensions(centerX, startY + (buttonHeight + spacing) * 7, buttonWidth, buttonHeight).build();
                 this.addDrawableChild(devButton);
-            }
+//            }
         }
     }
 }

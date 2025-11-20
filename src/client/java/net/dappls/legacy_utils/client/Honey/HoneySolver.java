@@ -162,4 +162,5 @@ public class HoneySolver {
         float hue = (float) index / (float) total;
         return Color.HSBtoRGB(hue, 1.0f, 1.0f);
     }
+
 }
