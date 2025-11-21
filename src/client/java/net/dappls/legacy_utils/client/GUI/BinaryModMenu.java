@@ -63,7 +63,7 @@ public class BinaryModMenu extends Screen {
                         ChatUtils.sendClientMessage("Invalid decimal number!");
                     }
                 }).dimensions(decimalInput.getX() + fieldWidth + spacing, startY, buttonWidth, 20).build());
-
+                 this.addDrawableChild(ButtonWidget.builder(Text.literal("<"), button -> MinecraftClient.getInstance().setScreen(new ModMenu())).dimensions(10, 10, 20, 20).build());
         // Binary input field and solve button
         startY += 30;
         binaryInput = new TextFieldWidget(this.textRenderer,
