@@ -3,6 +3,7 @@ package net.dappls.legacy_utils.client;
 import net.dappls.legacy_utils.Toggles.DungeonParticleTrail;
 import net.dappls.legacy_utils.Toggles.SpiritParticleTrail;
 import net.dappls.legacy_utils.Toggles.WaterParticleTrail;
+import net.dappls.legacy_utils.client.Binary.BinarySolver;
 import net.dappls.legacy_utils.client.Binary.ButtonHandler;
 import net.dappls.legacy_utils.client.Honey.HoneySolver;
 
@@ -29,6 +30,7 @@ public class Legacy_utilsClient implements ClientModInitializer {
         WaterParticleTrail.register();
         DungeonParticleTrail.register();
         SpiritParticleTrail.register();
+        BinarySolver.registerListeners();
 
     }
 }

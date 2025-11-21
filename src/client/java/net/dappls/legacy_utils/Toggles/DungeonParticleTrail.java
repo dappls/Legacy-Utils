@@ -110,7 +110,7 @@ public class DungeonParticleTrail {
 
     public static void cycleMode() {
         if (MinecraftClient.getInstance().world != null &&
-                MinecraftClient.getInstance().world.isPlayerInRange(10039, 152, 50550, 500)) {
+                MinecraftClient.getInstance().world.isPlayerInRange(10019, 136, 50537, 500)) {
             currentMode = currentMode.next();
             updateActiveTrail();
         } else {

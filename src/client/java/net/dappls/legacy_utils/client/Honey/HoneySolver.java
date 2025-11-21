@@ -2,21 +2,45 @@ package net.dappls.legacy_utils.client.Honey;
 
 import net.dappls.legacy_utils.client.Util.ChatUtils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.block.Blocks;
 
 import java.awt.Color;
 import java.util.*;
 
+import static net.dappls.legacy_utils.client.Util.TrailRenderer.renderCube;
+
 public class HoneySolver {
-
+    public static boolean honeyActive = false;
     public static final int MAX_MOVES = 100000;
+    public static boolean returning = false;
+    public static final List<BlockPos> solvedPathOriginal = new ArrayList<>();
+    // Queue of candle pressure plates to visit
+    public static final Queue<BlockPos> candleGoals = new LinkedList<>();
 
-    // --- Wall blocks ---
+    public static BlockPos currentGoal = null;
+    public static boolean solving = false;  // fully controls solver loop
+
+    public static void disableHoney() {
+        honeyActive = false;
+        trailActive = false;
+        solvedPath.clear();
+        solving = false;
+        returning = false;
+        candleGoals.clear();
+        solvedPathOriginal.clear();
+        currentGoal = null;
+        ChatUtils.sendClientMessage("Honey solver disabled.");
+    }
+
     public static final List<Block> WALL_BLOCKS = Arrays.asList(
             Blocks.ORANGE_STAINED_GLASS,
             Blocks.STRIPPED_ACACIA_LOG,
@@ -54,25 +78,69 @@ public class HoneySolver {
         return WALL_BLOCKS.contains(block);
     }
 
+    private static void loadCandleQueue() {
+        candleGoals.clear();
+        List<BlockPos> powered = CandleChecker.getActivePressurePlates();
+
+        if (powered.isEmpty()) {
+            // keep queue empty
+            return;
+        }
+
+        candleGoals.addAll(powered);
+    }
+
+    /**
+     * Public entry: start the whole solve queue from player's current pos.
+     * Caller should ensure player != null.
+     */
+    public static void startSolving(BlockPos startPos) {
+        if (solving || !honeyActive) return;
+
+        loadCandleQueue();
+
+        if (candleGoals.isEmpty()) {
+            ChatUtils.sendClientMessage("No candles to solve!");
+            return;
+        }
+
+        solving = true;
+        ChatUtils.sendClientMessage("Honey solver started. Lit Candles: " + candleGoals.size());
+        solveNextCandle(startPos);
+    }
+
+    private static void solveNextCandle(BlockPos startPos) {
+        if (!honeyActive) {
+            solving = false;
+            return;
+        }
+
+        // reload just in case
+        if (candleGoals.isEmpty()) {
+            loadCandleQueue();
+        }
+
+        if (candleGoals.isEmpty()) {
+            solving = false;
+            ChatUtils.sendClientMessage("All candles solved!");
+            return;
+        }
+
+        currentGoal = candleGoals.poll();
+        returning = false;
+        solvedPath.clear();
+        solvedPathOriginal.clear();
+
+        solveAStar(startPos, currentGoal);
+    }
+
     // --- Heuristic: Manhattan distance ---
     private static int heuristic(BlockPos a, BlockPos b) {
         return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ());
     }
 
-    // --- Get goal (active candle's pressure plate) ---
-    private static BlockPos getGoalPos() {
-        return CandleChecker.getActivePressurePlate();
-    }
-
-    // --- A* Solver ---
-    public static void solveToCandle(BlockPos startPos) {
-        if (MinecraftClient.getInstance().world == null) return;
-
-        BlockPos goal = getGoalPos();
-        if (goal == null) {
-            ChatUtils.sendClientMessage("No lit candle found!");
-            return;
-        }
+    public static void solveAStar(BlockPos startPos, BlockPos goal) {
+        if (MinecraftClient.getInstance().world == null || goal == null) return;
 
         PriorityQueue<MazeBlockPos> openSet = new PriorityQueue<>(Comparator.comparingInt(n -> n.fCost));
         Set<BlockPos> closedSet = new HashSet<>();
@@ -81,19 +149,15 @@ public class HoneySolver {
         openSet.add(startNode);
 
         int moves = 0;
-        ChatUtils.sendClientMessage("A* search started...");
 
-        while (!openSet.isEmpty() && moves < MAX_MOVES) {
+        while (!openSet.isEmpty() && moves < MAX_MOVES && honeyActive && solving) {
             MazeBlockPos current = openSet.poll();
             moves++;
 
             if (current.pos.equals(goal)) {
                 buildPath(current);
-                ChatUtils.sendClientMessage("A* solved in " + moves + " moves");
                 trailActive = true;
-                if (MinecraftClient.getInstance().player != null) {
-                    MinecraftClient.getInstance().player.closeScreen();
-                }
+                ChatUtils.sendClientMessage("Path built to candle");
                 return;
             }
 
@@ -102,9 +166,9 @@ public class HoneySolver {
             for (CardinalDirections dir : CardinalDirections.values()) {
                 BlockPos neighborPos = switch (dir) {
                     case NORTH -> current.pos.north();
-                    case EAST -> current.pos.east();
+                    case EAST  -> current.pos.east();
                     case SOUTH -> current.pos.south();
-                    case WEST -> current.pos.west();
+                    case WEST  -> current.pos.west();
                 };
 
                 if (isWall(neighborPos) || closedSet.contains(neighborPos))
@@ -112,9 +176,9 @@ public class HoneySolver {
 
                 int gCost = current.gCost + 1;
                 int fCost = gCost + heuristic(neighborPos, goal);
+
                 MazeBlockPos neighbor = new MazeBlockPos(current, dir, neighborPos, gCost, fCost);
 
-                // Only add if not in open set with lower cost
                 boolean shouldAdd = openSet.stream()
                         .noneMatch(n -> n.pos.equals(neighborPos) && n.fCost <= fCost);
 
@@ -122,45 +186,104 @@ public class HoneySolver {
             }
         }
 
-        ChatUtils.sendClientMessage("A* failed to find a path(try navigating back to the middle of the maze)");
-        if (MinecraftClient.getInstance().player != null) {
-            MinecraftClient.getInstance().player.closeScreen();
-        }
+        ChatUtils.sendClientMessage("Failed for candle at " + goal);
     }
 
-    // --- Build solved path ---
     private static void buildPath(MazeBlockPos goal) {
         solvedPath.clear();
+        solvedPathOriginal.clear();
+
         MazeBlockPos current = goal;
         while (current.parent != null && current.direction != null) {
             solvedPath.add(current.getPos());
             current = current.parent;
         }
         Collections.reverse(solvedPath);
+
+        // Save original
+        solvedPathOriginal.addAll(solvedPath);
     }
 
     // --- Particle trail ---
     public static void registerTrailListener() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (!trailActive || MinecraftClient.getInstance().world == null || solvedPath.isEmpty()) return;
-
+            MatrixStack matrices = context.matrixStack();
+            Camera camera = context.camera();
+            VertexConsumerProvider consumers = context.consumers();
+            if (consumers == null || solvedPath.isEmpty()) return;
+            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
             for (int i = 0; i < solvedPath.size(); i++) {
                 BlockPos pos = solvedPath.get(i);
-                int color = lengthToColorInt(i, solvedPath.size());
-                spawnParticle(pos, color);
+                int total = solvedPath.size();
+                float hue = (float) i / total;
+                Color color = Color.getHSBColor(hue, 1f, 1f);
+                renderCube(
+                        matrices, buffer, camera, pos,
+                        color.getRed() / 255f,
+                        color.getGreen() / 255f,
+                        color.getBlue() / 255f
+                );
             }
+        });
+
+        // Register tick listener once (idempotent if called multiple times)
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            // Only process when solver is active
+            if (!honeyActive || !solving) return;
+            removeNearestTrailBlock();
         });
     }
 
-    private static void spawnParticle(BlockPos pos, int rgbColor) {
-        Vec3d vec = Vec3d.ofCenter(pos);
-        DustParticleEffect particle = new DustParticleEffect(rgbColor, (float) 1.0);
-        MinecraftClient.getInstance().world.addParticle(particle, vec.x, vec.y + 0.1, vec.z, 0, 0.01, 0);
-    }
+    public static void removeNearestTrailBlock() {
+        if (MinecraftClient.getInstance().player == null || solvedPath.isEmpty()) return;
+        if (!honeyActive || !solving) return;
 
-    private static int lengthToColorInt(int index, int total) {
-        float hue = (float) index / (float) total;
-        return Color.HSBtoRGB(hue, 1.0f, 1.0f);
-    }
+        BlockPos playerPos = MinecraftClient.getInstance().player.getBlockPos();
 
+        int touchedIndex = -1;
+        for (int i = 0; i < solvedPath.size(); i++) {
+            if (playerPos.isWithinDistance(solvedPath.get(i), 1.0)) {
+                touchedIndex = i;
+                break;
+            }
+        }
+
+        if (touchedIndex >= 0) {
+            // Remove "queue style"
+            solvedPath.subList(0, touchedIndex + 1).clear();
+
+            // Forward path finished: build return trail
+            if (solvedPath.isEmpty() && !returning) {
+                returning = true;
+
+                // reverse original saved forward path and use that as return trail
+                Collections.reverse(solvedPathOriginal);
+                solvedPath.addAll(solvedPathOriginal);
+
+                ChatUtils.sendClientMessage("Forward path cleared — returning to center.");
+                return;
+            }
+
+            // Return path finished → start next goal
+            if (solvedPath.isEmpty() && returning) {
+                trailActive = false;
+                returning = false;
+
+                // When returned to center, refresh queue (candles may have changed),
+                // and start the next candle if any remain.
+                loadCandleQueue();
+
+                if (candleGoals.isEmpty()) {
+                    solving = false;
+                    honeyActive = false; // optionally auto-disable
+                    ChatUtils.sendClientMessage("All candles solved!");
+                } else if (solving && honeyActive) {
+                    // Use player's current pos as start for the next path
+                    BlockPos start = MinecraftClient.getInstance().player.getBlockPos();
+                    solveNextCandle(start);
+                }
+            }
+        }
+    }
 }
