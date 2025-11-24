@@ -10,8 +10,10 @@ import java.util.List;
 
 public class TrailFileLoader {
 
-    private static final String BASE_PATH = "SpiritTrails/"; // inside src/main/resources/
-
+    private static String BASE_PATH = ""; // inside src/main/resources/
+    public static void SetPath(String path) {
+        BASE_PATH = path;
+    }
     /**
      * Load a trail file from resources and return a list of BlockPos
      * @param filename Example: "sewer1.txt"

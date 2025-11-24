@@ -26,7 +26,6 @@ public class Legacy_utilsClient implements ClientModInitializer {
         GlowingOutlineRenderer.register();
         PuzzleListeners.register();
         RenderPuzzle.register();
-        WaterParticleTrail.registerTrailListener();
         WaterParticleTrail.register();
         DungeonParticleTrail.register();
         SpiritParticleTrail.register();

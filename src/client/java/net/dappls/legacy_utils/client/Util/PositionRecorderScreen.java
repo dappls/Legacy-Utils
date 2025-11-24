@@ -116,9 +116,9 @@ public class PositionRecorderScreen extends Screen {
             if (recording && mc.player != null) {
                 Vec3d pos = mc.player.getPos();
                 // Round to nearest integer
-                int x = (int) Math.round(pos.x);
-                int y = (int) Math.round(pos.y);
-                int z = (int) Math.round(pos.z);
+                int x = (int) Math.floor(pos.x);
+                int y = (int) Math.floor(pos.y);
+                int z = (int) Math.floor(pos.z);
 
                 String formatted = String.format("%d, %d, %d", x, y, z);
 

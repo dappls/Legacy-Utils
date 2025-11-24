@@ -47,13 +47,14 @@ public class TogglesMenu extends Screen {
         int startY = (this.height - buttonHeight) / 2;
 
         ButtonWidget waterButton = ButtonWidget.builder(
-                Text.literal("Water: " + getWaterModeName(WaterParticleTrail.getCurrentMode())),
+                Text.literal("Water: " + (WaterParticleTrail.isEnabled() ? "ON" : "OFF")),
                 button -> {
-                    WaterParticleTrail.cycleMode();
-                    button.setMessage(Text.literal("Water: " + getWaterModeName(WaterParticleTrail.getCurrentMode())));
+                    WaterParticleTrail.toggleTrail();
+                    button.setMessage(Text.literal("Water: " + (WaterParticleTrail.isEnabled() ? "ON" : "OFF")));
                 }
         ).dimensions(centerX, startY + buttonHeight + 10, buttonWidth, buttonHeight).build();
         this.addDrawableChild(waterButton);
+
 
 
         ButtonWidget dungeonButton = ButtonWidget.builder(
@@ -82,14 +83,6 @@ public class TogglesMenu extends Screen {
             case LAMP2 -> "Lamp 2";
             case LAMP3 -> "Lamp 3";
             case WINDCHARGE -> "Wind Charge";
-        };
-    }
-    private String getWaterModeName(WaterParticleTrail.WaterTrailMode mode) {
-        return switch (mode) {
-            case OFF -> "Disabled";
-            case PICKAXE -> "Pickaxe Path";
-            case BOSS -> "Boss Path";
-            case CONDUIT -> "Conduit Path";
         };
     }
     private String getSpiritModeName(SpiritParticleTrail.SpiritTrailMode mode) {

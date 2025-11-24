@@ -84,7 +84,7 @@ public class SpiritParticleTrail {
         Valley3Path.clear();
         MineShaft3Path1.clear();
         MineShaft3Path2.clear();
-
+        TrailFileLoader.SetPath("SpiritTrails/");
         Sewer1Path.addAll(TrailFileLoader.load("sewer1"));
         Sewer2Path.addAll(TrailFileLoader.load("sewer2"));
         Sewer3Path.addAll(TrailFileLoader.load("sewer3"));
