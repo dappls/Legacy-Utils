@@ -8,6 +8,9 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 
@@ -76,6 +79,9 @@ public class PositionRecorderScreen extends Screen {
             }
         }).dimensions(centerX, startY + buttonHeight + spacing, buttonWidth, buttonHeight).build();
         this.addDrawableChild(stopButton);
+
+        ButtonWidget nbtButton = ButtonWidget.builder(Text.literal("GetNBT"), (button) -> checkHeldItem()).dimensions(centerX, startY + buttonHeight + (spacing*3), buttonWidth, buttonHeight).build();
+        this.addDrawableChild(nbtButton);
     }
 
     @Override
@@ -147,5 +153,32 @@ public class PositionRecorderScreen extends Screen {
         }
 
         recordedPositions.clear();
+    }
+    public static void checkHeldItem() {
+        MinecraftClient client = MinecraftClient.getInstance();
+
+        // Ensure player exists
+        if (client.player == null) return;
+
+        // Get the item in the player's main hand
+        ItemStack heldItem = client.player.getMainHandStack();
+
+        if (heldItem.isEmpty()) {
+            ChatUtils.sendClientMessage("Player is not holding anything.");
+            return;
+        }
+
+        // Print basic info
+        File file = new File(MinecraftClient.getInstance().runDirectory, "recorded_items.txt");
+        List<Text> nbt = heldItem.getTooltip(Item.TooltipContext.DEFAULT, client.player, TooltipType.BASIC);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+            writer.write("=== " + sessionLabel + " ===\n");
+            writer.write(heldItem.getItem().toString());
+            writer.write("=== Item metadata (NBT): ===\n");
+            writer.write(nbt.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

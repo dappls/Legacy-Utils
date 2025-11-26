@@ -1,6 +1,5 @@
-package net.dappls.legacy_utils.Toggles;
+package net.dappls.legacy_utils.client.Toggles;
 
-import net.dappls.legacy_utils.client.Util.ChatUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -233,10 +232,8 @@ public class WaterParticleTrail {
             hasreturnedfromconduit3 = false;
             hasreturnedfromconduit4 = false;
             if (TRAILS.isEmpty()) init();
-            ChatUtils.sendClientMessage("Water Trail: ON");
         } else {
             activeTrail = Collections.emptyList();
-            ChatUtils.sendClientMessage("Water Trail: OFF");
         }
     }
 }

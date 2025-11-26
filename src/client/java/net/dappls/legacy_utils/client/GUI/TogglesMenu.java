@@ -1,8 +1,8 @@
 package net.dappls.legacy_utils.client.GUI;
 
-import net.dappls.legacy_utils.Toggles.DungeonParticleTrail;
-import net.dappls.legacy_utils.Toggles.SpiritParticleTrail;
-import net.dappls.legacy_utils.Toggles.WaterParticleTrail;
+import net.dappls.legacy_utils.client.Toggles.DungeonParticleTrail;
+import net.dappls.legacy_utils.client.Toggles.SpiritParticleTrail;
+import net.dappls.legacy_utils.client.Toggles.WaterParticleTrail;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

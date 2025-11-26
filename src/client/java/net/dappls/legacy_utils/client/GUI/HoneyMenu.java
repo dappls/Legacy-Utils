@@ -18,22 +18,21 @@ public class HoneyMenu extends Screen {
         super(Text.literal("Honey Menu"));
     }
 
-
     @Override
     protected void init() {
-
         super.init();
 
         int buttonWidth = 150;
         int buttonHeight = 20;
         int spacing = 10;
-        int numButtons = 2;
+        // Increased number of buttons to 3 to accommodate the new "Return Path" button
+        int numButtons = 3;
         int totalHeight = numButtons * buttonHeight + (numButtons - 1) * spacing;
         int startY = (this.height - totalHeight) / 2;
         int centerX = (this.width - buttonWidth) / 2;
 
         // ===========================
-        // ⚡ HONEY SOLVER TOGGLE
+        // 1. HONEY SOLVER / NEXT CANDLE
         // ===========================
 
         String toggleText = HoneySolver.honeyActive ?
@@ -41,42 +40,32 @@ public class HoneyMenu extends Screen {
                 "Enable Honey Solver";
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal(toggleText), button -> {
-            BlockPos firstPos = new BlockPos(9763, 55, 52356); // You could also pick LEVER_B or LEVER_C; just pick one
+            BlockPos firstPos = new BlockPos(9763, 55, 52356);
             if (MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getBlockPos().isWithinDistance(firstPos, 700)) {
                 ChatUtils.sendClientMessage("Not within range of puzzle!");
-                return; // Stop further updates if out of range
+                return;
             }
-            HoneySolver.honeyActive = !HoneySolver.honeyActive;
 
-            if (HoneySolver.honeyActive) {
-                ChatUtils.sendClientMessage("Honey Solver Enabled");
 
-                if (MinecraftClient.getInstance().player != null) {
-                    HoneySolver.startSolving(MinecraftClient.getInstance().player.getBlockPos());
-                }
-
+            if (!HoneySolver.honeyActive) {
+                HoneySolver.honeyActive = true;
             } else {
                 HoneySolver.disableHoney();
-                ChatUtils.sendClientMessage("Honey Solver Disabled");
+                return;
             }
-
-            // Refresh text
             this.clearAndInit();
-        }).dimensions(centerX, startY, buttonWidth, buttonHeight).build());
+        }).dimensions(centerX, startY + buttonHeight + spacing, buttonWidth, buttonHeight).build());
 
-        // ===========================
-        // 🧹 REMOVE TRAIL BUTTON
-        // ===========================
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Remove Trail"), button -> {
             HoneySolver.trailActive = false;
             HoneySolver.solvedPath.clear();
-            ChatUtils.sendClientMessage("Rainbow trail removed");
+            ChatUtils.sendClientMessage("Trail removed");
 
             if (MinecraftClient.getInstance().player != null) {
                 MinecraftClient.getInstance().player.closeScreen();
             }
-        }).dimensions(centerX, startY + buttonHeight + spacing, buttonWidth, buttonHeight).build());
+        }).dimensions(centerX, startY + (buttonHeight + spacing) * 2, buttonWidth, buttonHeight).build());
 
         // Back button
         ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"),
@@ -90,14 +79,9 @@ public class HoneyMenu extends Screen {
         this.renderBackground(context, mouseX, mouseY, delta);
         context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, 0xFFFFFF);
 
-        int yStart = 50;
-        context.drawCenteredTextWithShadow(this.textRenderer, "This is the honey solver!", this.width / 2, yStart + 10, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer, "Press toggle and step on the lit plate", this.width / 2, yStart + 20, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer, "Return to center and repeat", this.width / 2, yStart + 30, 0xFFAA00);
-
         // Display state
         String state = HoneySolver.honeyActive ? "Status: ACTIVE" : "Status: OFF";
-        context.drawCenteredTextWithShadow(this.textRenderer, state, this.width / 2, yStart + 50,
+        context.drawCenteredTextWithShadow(this.textRenderer, state, this.width / 2, 20,
                 HoneySolver.honeyActive ? 0x00FF00 : 0xFF4444);
 
         super.render(context, mouseX, mouseY, delta);

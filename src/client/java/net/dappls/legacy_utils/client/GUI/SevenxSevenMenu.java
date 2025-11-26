@@ -3,11 +3,11 @@ package net.dappls.legacy_utils.client.GUI;
 import net.dappls.legacy_utils.client.SevenxSeven.GlowingOutlineRenderer;
 import net.dappls.legacy_utils.client.SevenxSeven.SevenxSevenMatrix;
 import net.dappls.legacy_utils.client.SevenxSeven.SevenxSevenPositions;
+import net.dappls.legacy_utils.client.Util.LoreMatrix;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
@@ -18,6 +18,10 @@ public class SevenxSevenMenu extends Screen {
     private static final int GRID_SIZE = 7;
     private static final int BUTTON_SIZE = 20;
     private static final int SPACING = 4;
+    public int rotation = 0; // degrees
+
+
+
 
     private final BlockPosButton[][] buttons = new BlockPosButton[GRID_SIZE][GRID_SIZE];
     private final Map<Integer, BlockPosButton> buttonMap = new HashMap<>();
@@ -40,27 +44,25 @@ public class SevenxSevenMenu extends Screen {
                 "This is the 7x7 solver!",
                 this.width / 2, yStart+lineHeight, 0xFFAA00);
         context.drawCenteredTextWithShadow(this.textRenderer,
-                "Input values from deepslate onto GUI grid",
-                this.width / 2, yStart+lineHeight*2, 0xFFAA00);
+                "Hold the item and press load to load the numbers into the grid", this.width / 2, yStart + lineHeight*2, 0xFFAA00);
         context.drawCenteredTextWithShadow(this.textRenderer,
-                "Orient yourself by using the Start grid, which refers to the yellow square.", this.width / 2, yStart + lineHeight*3, 0xFFAA00);
+                "rotate until the rotation is 0°", this.width / 2, yStart + lineHeight*3, 0xFFAA00);
         context.drawCenteredTextWithShadow(this.textRenderer,
-                "Screenshot the map and put the points into the grid", this.width / 2, yStart + lineHeight*4, 0xFFAA00);
+                "1-> Red     2 -> Yellow     3 -> Green     4 -> Blue     5(yellow tile)-> White", this.width / 2, yStart + lineHeight * 4, 0xFFAA00);
         context.drawCenteredTextWithShadow(this.textRenderer,
-                " Start-> White     1-> Red     2 -> Yellow     3 -> Green     4 -> Blue", this.width / 2, yStart + lineHeight * 5, 0xFFAA00);
+                "Rotation: " + rotation + "°",
+                this.width / 2, yStart + lineHeight * 6, 0xFFAA00);
 
         super.render(context, mouseX, mouseY, delta);
     }
 
     private static class BlockPosButton extends ButtonWidget {
         private int displayValue;
-        private final boolean isStart;
         private final BlockPos pos;
 
         public BlockPosButton(int x, int y, int width, int height, boolean isStart, BlockPos pos,
                               NarrationSupplier narration) {
             super(x, y, width, height, Text.literal(isStart ? "Start" : ""), b -> {}, narration);
-            this.isStart = isStart;
             this.pos = pos;
             this.displayValue = 0;
             updateText();
@@ -68,15 +70,12 @@ public class SevenxSevenMenu extends Screen {
 
         @Override
         public void onPress() {
-            if (!isStart) {
                 displayValue = (displayValue + 1) % 5;
                 updateText();
-            }
         }
 
         private void updateText() {
-            this.setMessage(isStart ? Text.literal("Start")
-                    : displayValue == 0 ? Text.literal("")
+            this.setMessage(displayValue == 0 ? Text.literal("")
                     : Text.literal(Integer.toString(displayValue)));
         }
         public BlockPos getBlockPos() { return pos; }
@@ -100,50 +99,86 @@ public class SevenxSevenMenu extends Screen {
         }
     }
 
+
     private void generateTable() {
+        int[][] matrix = SevenxSevenMatrix.matrix7x7;
+        if (matrix == null) return;
+
         int gridWidth = GRID_SIZE * (BUTTON_SIZE + SPACING) - SPACING;
         int startX = (this.width - gridWidth) / 2;
         int startY = 130;
 
-
         for (int row = 0; row < GRID_SIZE; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
-                int key = SevenxSevenMatrix.matrix7x7[row][col];
+                int key = row * GRID_SIZE + col + 1;
                 BlockPosButton button = buttonMap.get(key);
                 if (button == null) continue;
 
                 button.setX(startX + col * (BUTTON_SIZE + SPACING));
                 button.setY(startY + row * (BUTTON_SIZE + SPACING));
 
+                button.displayValue = matrix[row][col];
+                button.updateText();
                 buttons[row][col] = button;
+
+                // check for 5 and set rotation
+                if (matrix[row][col] == 5) {
+                    if (row == 5 && col == 3) rotation = 0;
+                    else if (row == 3 && col == 1) rotation = 90;
+                    else if (row == 1 && col == 3) rotation = 180;
+                    else if (row == 3 && col == 5) rotation = 270;
+                }
             }
         }
     }
+
+
+
 
     @Override
     protected void init() {
         createAllButtons();
         generateTable();
+
         int buttonWidth = 80;
         int buttonHeight = 20;
-        int centerX = this.width / 2;
-        int solveY = 130 + GRID_SIZE * (BUTTON_SIZE + SPACING) + SPACING;
-        int spacingBetweenButtons = 2;
+        int spacing = 10; // spacing between buttons in the square
 
+        int centerX = this.width / 2;
+        int centerY = 130 + GRID_SIZE * (BUTTON_SIZE + SPACING) + SPACING + 40; // anchor below grid
+
+        // Compute top-left corner of the square
+        int squareWidth = buttonWidth * 2 + spacing;
+        int startX = centerX - squareWidth / 2;
+
+        // Row 1, Col 1: Load
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Load"), b -> {
+                    int[][] parsed = LoreMatrix.getHeldItemMatrix();
+                    if (parsed != null) {
+                        SevenxSevenMatrix.matrix7x7 = parsed;
+                        generateTable();
+                    }
+                })
+                .dimensions(startX, centerY, buttonWidth, buttonHeight).build());
+
+        // Row 1, Col 2: Rotate
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Rotate"), b -> {
                     SevenxSevenMatrix.rotateMatrix90Clockwise();
                     MinecraftClient.getInstance().setScreen(new SevenxSevenMenu());
                 })
-                .dimensions(centerX - buttonWidth - spacingBetweenButtons, solveY, buttonWidth, buttonHeight).build());
+                .dimensions(startX + buttonWidth + spacing, centerY, buttonWidth, buttonHeight).build());
 
+        // Row 2, Col 1: Solve
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Solve"), b -> solveGrid())
-                .dimensions(centerX + spacingBetweenButtons, solveY, buttonWidth, buttonHeight).build());
+                .dimensions(startX, centerY + buttonHeight + spacing, buttonWidth, buttonHeight).build());
 
-        int clearY = solveY + buttonHeight + (spacingBetweenButtons + 7);
+        // Row 2, Col 2: Clear Outlines
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Clear Outlines"), b -> GlowingOutlineRenderer.ClearRendering())
-                .dimensions(centerX - buttonWidth / 2, clearY, buttonWidth, buttonHeight).build());
+                .dimensions(startX + buttonWidth + spacing, centerY + buttonHeight + spacing, buttonWidth, buttonHeight).build());
 
-        ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"), (button) -> MinecraftClient.getInstance().setScreen(new ModMenu()))
+        // Back button stays in top-left corner
+        ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"),
+                        (button) -> MinecraftClient.getInstance().setScreen(new ModMenu()))
                 .dimensions(10, 10, 20, 20).build();
         this.addDrawableChild(backButton);
     }
@@ -151,11 +186,9 @@ public class SevenxSevenMenu extends Screen {
 
 
 
-    private void solveGrid() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerEntity player = client.player;
-        if (player == null) return;
 
+
+    private void solveGrid() {
         GlowingOutlineRenderer.clearAll();
 
         for (int y = 0; y < GRID_SIZE; y++) {
@@ -165,15 +198,13 @@ public class SevenxSevenMenu extends Screen {
 
                 int value = btn.getDisplayValue();
                 BlockPos pos = btn.getBlockPos();
-                if (btn.isStart) {
-                    GlowingOutlineRenderer.AddRenderPosition(SevenxSevenPositions.BLOCK_POS_LIST[38], 1f, 1f, 1f, 1f);
-                    continue;
-                }
+
                 switch (value) {
                     case 1 -> GlowingOutlineRenderer.AddRenderPosition(pos, 1f, 0f, 0f, 1f);
                     case 2 -> GlowingOutlineRenderer.AddRenderPosition(pos, 1f, 1f, 0f, 1f);
                     case 3 -> GlowingOutlineRenderer.AddRenderPosition(pos, 0f, 1f, 0f, 1f);
                     case 4 -> GlowingOutlineRenderer.AddRenderPosition(pos, 0f, 0f, 1f, 1f);
+                    case 5 -> GlowingOutlineRenderer.AddRenderPosition(pos, 1f, 1f, 1f, 1f); // Start
                 }
             }
         }

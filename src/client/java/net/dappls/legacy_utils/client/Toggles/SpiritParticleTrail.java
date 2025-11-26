@@ -1,4 +1,4 @@
-package net.dappls.legacy_utils.Toggles;
+package net.dappls.legacy_utils.client.Toggles;
 
 
 import net.dappls.legacy_utils.client.Util.ChatUtils;
