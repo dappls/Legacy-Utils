@@ -14,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 @Environment(EnvType.CLIENT)
 public class HoneyMenu extends Screen {
 
+
     public HoneyMenu() {
         super(Text.literal("Honey Menu"));
     }
@@ -57,16 +58,6 @@ public class HoneyMenu extends Screen {
         }).dimensions(centerX, startY + buttonHeight + spacing, buttonWidth, buttonHeight).build());
 
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Remove Trail"), button -> {
-            HoneySolver.trailActive = false;
-            HoneySolver.solvedPath.clear();
-            ChatUtils.sendClientMessage("Trail removed");
-
-            if (MinecraftClient.getInstance().player != null) {
-                MinecraftClient.getInstance().player.closeScreen();
-            }
-        }).dimensions(centerX, startY + (buttonHeight + spacing) * 2, buttonWidth, buttonHeight).build());
-
         // Back button
         ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"),
                         b -> MinecraftClient.getInstance().setScreen(new ModMenu()))
@@ -77,13 +68,21 @@ public class HoneyMenu extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
+
+        // Title
         context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, 0xFFFFFF);
 
-        // Display state
+        // Status line
         String state = HoneySolver.honeyActive ? "Status: ACTIVE" : "Status: OFF";
-        context.drawCenteredTextWithShadow(this.textRenderer, state, this.width / 2, 20,
-                HoneySolver.honeyActive ? 0x00FF00 : 0xFF4444);
+        int stateColor = HoneySolver.honeyActive ? 0x00FF00 : 0xFF4444;
+        context.drawCenteredTextWithShadow(this.textRenderer, state, this.width / 2, 60, stateColor);
+
+
+        int amber = 0xFFAA00;
+        context.drawCenteredTextWithShadow(this.textRenderer, "This is the Honey solver!", this.width / 2, 80, amber);
+        context.drawCenteredTextWithShadow(this.textRenderer, "Toggle the solver on to solve all candles", this.width / 2, 100, amber);
 
         super.render(context, mouseX, mouseY, delta);
     }
+
 }
