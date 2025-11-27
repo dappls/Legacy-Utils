@@ -1,9 +1,10 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.dappls.legacy_utils.mixin.client",
+  "package": "net.dappls.legacy_utils.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "NoMenuBlurMixin"
   ],
   "injectors": {
     "defaultRequire": 1

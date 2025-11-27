@@ -38,8 +38,9 @@ public class BinaryModMenu extends Screen {
         int spacing = 5;       // space between elements
 
         // Decimal input field and button
+        int xCoordinates = centerX - (labelWidth + spacing + fieldWidth + spacing + buttonWidth) / 2;
         decimalInput = new TextFieldWidget(this.textRenderer,
-                centerX - (labelWidth + spacing + fieldWidth + spacing + buttonWidth) / 2 + labelWidth + spacing,
+                xCoordinates + labelWidth + spacing,
                 startY,
                 fieldWidth,
                 20,
@@ -67,7 +68,7 @@ public class BinaryModMenu extends Screen {
         // Binary input field and solve button
         startY += 30;
         binaryInput = new TextFieldWidget(this.textRenderer,
-                centerX - (labelWidth + spacing + fieldWidth + spacing + buttonWidth) / 2 + labelWidth + spacing,
+                xCoordinates + labelWidth + spacing,
                 startY,
                 fieldWidth,
                 20,
