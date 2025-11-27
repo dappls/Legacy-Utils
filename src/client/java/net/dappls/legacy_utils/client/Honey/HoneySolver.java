@@ -78,6 +78,10 @@ public class HoneySolver {
     }
 
     public static void solveAStar(BlockPos startPos, BlockPos goal) {
+        if (MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getBlockPos().isWithinDistance(new BlockPos(9763, 55, 52356), 100)) {
+            disableHoney();
+            return;
+        }
         if (MinecraftClient.getInstance().world == null || goal == null) return;
 
         PriorityQueue<MazeBlockPos> openSet = new PriorityQueue<>(Comparator.comparingInt(n -> n.fCost));
@@ -140,10 +144,6 @@ public class HoneySolver {
     public static void registerTrailListener() {
         // Tick logic
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.getBlockPos().isWithinDistance(new BlockPos(9794, 131, 52022), 15) && honeyActive) {
-                disableHoney();
-                return;
-            }
             if (client.world == null || client.player == null || !honeyActive) return;
             if (MinecraftClient.getInstance().player != null) {
                 BlockPos playerPos = new BlockPos(MinecraftClient.getInstance().player.getBlockPos().getX(), 55, MinecraftClient.getInstance().player.getBlockPos().getZ());

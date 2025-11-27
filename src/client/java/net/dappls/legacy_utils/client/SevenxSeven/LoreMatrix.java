@@ -1,4 +1,4 @@
-package net.dappls.legacy_utils.client.Util;
+package net.dappls.legacy_utils.client.SevenxSeven;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
@@ -99,17 +99,19 @@ private static boolean isSpaceLiteral(String text) {
 // --- Value mapping ---
 private static int toCell(String text, String styleRaw) {
     Map<String, String> styleMap = parseStyle(styleRaw);
+    String t = normalize(text);
     if (isYellow(styleMap)) {
         return 5;
     }
-    String t = normalize(text);
     if (t.matches("\\d+")) {
         try {
             return Integer.parseInt(t);
         } catch (NumberFormatException ignored) {}
     }
+
     return 0;
 }
+
 
 // --- Matrix builder ---
 public static int[][] buildMatrix(String lore) {

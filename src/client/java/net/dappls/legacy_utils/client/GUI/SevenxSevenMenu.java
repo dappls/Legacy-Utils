@@ -3,7 +3,7 @@ package net.dappls.legacy_utils.client.GUI;
 import net.dappls.legacy_utils.client.SevenxSeven.GlowingOutlineRenderer;
 import net.dappls.legacy_utils.client.SevenxSeven.SevenxSevenMatrix;
 import net.dappls.legacy_utils.client.SevenxSeven.SevenxSevenPositions;
-import net.dappls.legacy_utils.client.Util.LoreMatrix;
+import net.dappls.legacy_utils.client.SevenxSeven.LoreMatrix;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -204,7 +204,7 @@ public class SevenxSevenMenu extends Screen {
                     case 2 -> GlowingOutlineRenderer.AddRenderPosition(pos, 1f, 1f, 0f, 1f);
                     case 3 -> GlowingOutlineRenderer.AddRenderPosition(pos, 0f, 1f, 0f, 1f);
                     case 4 -> GlowingOutlineRenderer.AddRenderPosition(pos, 0f, 0f, 1f, 1f);
-                    case 5 -> GlowingOutlineRenderer.AddRenderPosition(pos, 1f, 1f, 1f, 1f); // Start
+                    case 5 -> GlowingOutlineRenderer.AddRenderPosition(pos, 1f, 1f, 1f, 1f);
                 }
             }
         }
