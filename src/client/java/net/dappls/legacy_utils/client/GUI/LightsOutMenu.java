@@ -3,28 +3,33 @@ package net.dappls.legacy_utils.client.GUI;
 import net.dappls.legacy_utils.client.LightsOut.BoardMatrix;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
-public class LightsOutMenu extends Screen {
+public class LightsOutMenu extends AbstractLegacyGUI {
 
     public LightsOutMenu() {
         super(Text.literal("Lights Menu"));
     }
 
     @Override
-    protected void init() {
+    protected void setupGUI() {
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xeb6424);
+        this.addLine(null);
+        this.addLine("Press the desired button to solve the puzzle");
+
+        // --- Button Setup (Moved from init) ---
         int buttonWidth = 150;
         int buttonHeight = 20;
         int spacing = 10;
         int totalHeight = 3 * buttonHeight + 2 * spacing;
-        int startY = (this.height - totalHeight) / 2;
+
+        // Anchor buttons below the static text
+        int startY = (this.height - totalHeight) / 2 + 30;
         int centerX = (this.width - buttonWidth) / 2;
 
+        // Initialize BoardMatrix here, as it's needed for button logic
         BoardMatrix board = new BoardMatrix();
         board.init();
 
@@ -44,26 +49,5 @@ public class LightsOutMenu extends Screen {
         this.addDrawableChild(unlit);
         this.addDrawableChild(centerLit);
 
-        // Back button
-        ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"), (button) -> MinecraftClient.getInstance().setScreen(new ModMenu())).dimensions(10, 10, 20, 20).build();
-        this.addDrawableChild(backButton);
-    }
-
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, 0xFFFFFF);
-        int yStart = 50;
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "",
-                this.width / 2, yStart, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "This is the LightsOut solver!",
-                this.width / 2, yStart+10, 0xFFAA00);
-
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "Press the desired button to solve the puzzle",
-                this.width / 2, yStart+20, 0xFFAA00);
-        super.render(context, mouseX, mouseY, delta);
     }
 }

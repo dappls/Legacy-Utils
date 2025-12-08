@@ -5,77 +5,60 @@ import net.dappls.legacy_utils.client.Toggles.SpiritParticleTrail;
 import net.dappls.legacy_utils.client.Toggles.WaterParticleTrail;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
-public class TogglesMenu extends Screen {
-
-
+public class TogglesMenu extends AbstractLegacyGUI {
 
     public TogglesMenu() {
         super(Text.literal("Toggle Menu"));
     }
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, 0xFFFFFF);
-
-        int yStart = 50;
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "",
-                this.width / 2, yStart, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "This menu has toggleable trails to help navigate through Lore areas!",
-                this.width / 2, yStart+10, 0xFFAA00);
-
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "The trails are NOT perfect, only providing general direction",
-                this.width / 2, yStart+20, 0xFFAA00);
-        super.render(context, mouseX, mouseY, delta);
-    }
 
     @Override
-    protected void init() {
-        super.init();
+    protected void setupGUI() {
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xd0f4de);
+        this.addLine(null);
+        this.addLine("This menu has toggleable trails to help navigate through Lore areas!");
+        this.addLine("The trails are NOT perfect, only providing general direction");
+
+
+        // --- Button Setup (Moved from old init method) ---
         int buttonWidth = 150;
         int buttonHeight = 20;
+        int spacing = 10;
         int centerX = (this.width - buttonWidth) / 2;
-        int startY = (this.height - buttonHeight) / 2;
+        // Anchor startY relative to the screen center, but adjusted slightly higher
+        int startY = (this.height / 2) - (buttonHeight * 2);
 
+        // 1. Water Button
         ButtonWidget waterButton = ButtonWidget.builder(
                 Text.literal("Water: " + (WaterParticleTrail.isEnabled() ? "ON" : "OFF")),
                 button -> {
                     WaterParticleTrail.toggleTrail();
                     button.setMessage(Text.literal("Water: " + (WaterParticleTrail.isEnabled() ? "ON" : "OFF")));
                 }
-        ).dimensions(centerX, startY + buttonHeight + 10, buttonWidth, buttonHeight).build();
+        ).dimensions(centerX, startY + buttonHeight + spacing, buttonWidth, buttonHeight).build();
         this.addDrawableChild(waterButton);
 
-
-
+        // 2. Dungeon Button
         ButtonWidget dungeonButton = ButtonWidget.builder(
                 Text.literal("Dungeon: " + getModeName(DungeonParticleTrail.getCurrentMode())), button -> {
                     DungeonParticleTrail.cycleMode(); // cycle to next mode
                     button.setMessage(Text.literal("Dungeon: " + getModeName(DungeonParticleTrail.getCurrentMode())));
-                }).dimensions(centerX, startY + 2 * (buttonHeight + 10), buttonWidth, buttonHeight).build();
+                }).dimensions(centerX, startY + 2 * (buttonHeight + spacing), buttonWidth, buttonHeight).build();
         this.addDrawableChild(dungeonButton);
 
+        // 3. Spirit Button
         ButtonWidget spiritButton = ButtonWidget.builder(
                 Text.literal("Spirit: " + getSpiritModeName(SpiritParticleTrail.getCurrentMode())), button -> {
                     SpiritParticleTrail.cycleMode(); // cycle to next mode
                     button.setMessage(Text.literal("Spirit: " + getSpiritModeName(SpiritParticleTrail.getCurrentMode())));
-                }).dimensions(centerX, startY + 3 * (buttonHeight + 10), buttonWidth, buttonHeight).build();
+                }).dimensions(centerX, startY + 3 * (buttonHeight + spacing), buttonWidth, buttonHeight).build();
         this.addDrawableChild(spiritButton);
-
-
-        ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"), button -> MinecraftClient.getInstance().setScreen(new ModMenu())).dimensions(10, 10, 20, 20).build();
-
-        this.addDrawableChild(backButton);
     }
+
+    // Helper methods remain in the class
     private String getModeName(DungeonParticleTrail.DungeonTrailMode mode) {
         return switch (mode) {
             case OFF -> "Disabled";
@@ -85,6 +68,7 @@ public class TogglesMenu extends Screen {
             case WINDCHARGE -> "Wind Charge";
         };
     }
+
     private String getSpiritModeName(SpiritParticleTrail.SpiritTrailMode mode) {
         return switch (mode) {
             case OFF -> "disabled";
@@ -103,4 +87,6 @@ public class TogglesMenu extends Screen {
         };
     }
 
+    // The init() and render() methods are now correctly omitted,
+    // relying entirely on AbstractGUI's implementations.
 }

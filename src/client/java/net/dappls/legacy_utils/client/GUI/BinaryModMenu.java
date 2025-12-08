@@ -6,7 +6,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
@@ -15,30 +14,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class BinaryModMenu extends Screen {
+public class BinaryModMenu extends AbstractLegacyGUI {
 
     private TextFieldWidget binaryInput;
-    private final List<String> solutionLines = new ArrayList<>();
     private TextFieldWidget decimalInput;
+    private final List<String> solutionLines = new ArrayList<>();
 
     public BinaryModMenu() {
         super(Text.literal("Binary Menu"));
     }
 
     @Override
-    protected void init() {
-        super.init();
+    protected void setupGUI() {
+        // --- Static Info Lines ---
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0x26547C);
+        this.addLine(null);
+        this.addLine("Binary Solver Instructions:");
+        this.addLine("Enter number from paper to convert it to binary");
+        this.addLine("Press Solve to solve the puzzle!");
+        this.addLine(null); // Line 6: Gap for the dynamic rotation text
+
 
         int centerX = this.width / 2;
-        int startY = this.height / 2 - 20;
+        // Adjusted startY to give space to the new static info lines (Y=74 to Y=98)
+        int startY = 120;
 
-        int labelWidth = 160;  // width reserved for label
-        int fieldWidth = 100;  // width of text field
-        int buttonWidth = 90;  // width of button
-        int spacing = 5;       // space between elements
+        int labelWidth = 160;
+        int fieldWidth = 100;
+        int buttonWidth = 90;
+        int spacing = 5;
 
-        // Decimal input field and button
-        int xCoordinates = centerX - (labelWidth + spacing + fieldWidth + spacing + buttonWidth) / 2;
+        // X coordinate calculation (common for labels and fields)
+        int xCoordinates = centerX - (labelWidth + spacing + fieldWidth) / 2;
+
+        // --- 1. Decimal Input and Convert Button ---
+
+        // Decimal input field
         decimalInput = new TextFieldWidget(this.textRenderer,
                 xCoordinates + labelWidth + spacing,
                 startY,
@@ -46,9 +57,10 @@ public class BinaryModMenu extends Screen {
                 20,
                 Text.literal(""));
         decimalInput.setMaxLength(10);
-        addSelectableChild(decimalInput);
+        this.addSelectableChild(decimalInput);
 
-        addDrawableChild(ButtonWidget.builder(Text.literal("Convert"),
+        // Convert Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Convert"),
                 b -> {
                     String decText = decimalInput.getText().trim();
                     try {
@@ -58,15 +70,18 @@ public class BinaryModMenu extends Screen {
                             return;
                         }
                         String binaryStr = Integer.toBinaryString(value);
+                        // Pad with leading zeros to 8 bits for typical puzzle format
                         binaryStr = String.format("%8s", binaryStr).replace(' ', '0');
                         binaryInput.setText(binaryStr);
                     } catch (NumberFormatException e) {
                         ChatUtils.sendClientMessage("Invalid decimal number!");
                     }
                 }).dimensions(decimalInput.getX() + fieldWidth + spacing, startY, buttonWidth, 20).build());
-                 this.addDrawableChild(ButtonWidget.builder(Text.literal("<"), button -> MinecraftClient.getInstance().setScreen(new ModMenu())).dimensions(10, 10, 20, 20).build());
-        // Binary input field and solve button
+
+        // --- 2. Binary Input and Solve Button ---
         startY += 30;
+
+        // Binary input field
         binaryInput = new TextFieldWidget(this.textRenderer,
                 xCoordinates + labelWidth + spacing,
                 startY,
@@ -74,9 +89,10 @@ public class BinaryModMenu extends Screen {
                 20,
                 Text.literal(""));
         binaryInput.setMaxLength(32);
-        addSelectableChild(binaryInput);
+        this.addSelectableChild(binaryInput);
 
-        addDrawableChild(ButtonWidget.builder(Text.literal("Solve"),
+        // Solve Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Solve"),
                 b -> {
                     String text = binaryInput.getText().trim();
                     if (!text.matches("[01]+")) {
@@ -97,43 +113,34 @@ public class BinaryModMenu extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, 0xFFFFFF);
-
-        int centerX = this.width / 2;
-        int startY = this.height / 2 - 20;
-        int labelWidth = 160; // same as init
+        super.render(context, mouseX, mouseY, delta);
+        int labelWidth = 160;
         int spacing = 5;
+        int labelX = this.width / 2 - (labelWidth + spacing + decimalInput.getWidth()) / 2;
 
-        // Decimal label
+
         context.drawTextWithShadow(this.textRenderer,
                 Text.literal("Enter integer:"),
-                centerX - (labelWidth + spacing + decimalInput.getWidth()) / 2,
-                startY + 6, // slightly vertically centered with field
-                0xFFAA00);
+                labelX,
+                decimalInput.getY() + 6,
+                LAVENDER);
         decimalInput.render(context, mouseX, mouseY, delta);
 
-        // Binary label
-        startY += 30;
+
         context.drawTextWithShadow(this.textRenderer,
                 Text.literal("Enter binary:"),
-                centerX - (labelWidth + spacing + binaryInput.getWidth()) / 2,
-                startY + 6,
-                0xFFAA00);
+                labelX,
+                binaryInput.getY() + 6,
+                LAVENDER);
         binaryInput.render(context, mouseX, mouseY, delta);
 
-        // Instructions below inputs/buttons
-        int instrY = startY + 40;
-        context.drawCenteredTextWithShadow(this.textRenderer, "Binary Solver Instructions:", centerX, 50, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer, "Enter number from paper to convert it to binary", centerX, 60, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer, "Press Solve to solve the puzzle!", centerX, 70, 0xFFAA00);
-        instrY += 12;
+
+        int instrY = binaryInput.getY() + 40;
+
         for (String line : solutionLines) {
-            context.drawCenteredTextWithShadow(this.textRenderer, line, centerX, instrY, 0x00FF00);
+            context.drawCenteredTextWithShadow(this.textRenderer, line, this.width / 2, instrY, 0x00FF00);
             instrY += 12;
         }
 
-        super.render(context, mouseX, mouseY, delta);
     }
-
 }

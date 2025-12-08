@@ -9,45 +9,34 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
-public class InfoMenu extends Screen {
+// MODIFIED: Extends AbstractGUI for consistency
+public class InfoMenu extends AbstractLegacyGUI {
+
     public InfoMenu() {
         super(Text.literal("Puzzle Info"));
     }
 
+    // MODIFIED: Implementation moved to setupGUI()
     @Override
-    protected void init() {
-        super.init();
+    protected void setupGUI() {
+        this.addLine("Welcome to the " + this.title.getString() + "!", GRANITE);
+        this.addLine(null);
+        this.addLine("Welcome to the Puzzle Info Menu!");
+        this.addLine("This screen will contain information on Legacy puzzles");
+        this.addLine("Currently it's a WIP");
 
-        // Back button
-        ButtonWidget backButton = ButtonWidget.builder(Text.literal("<"),
-                        (button) -> MinecraftClient.getInstance().setScreen(new ModMenu()))
-                .dimensions(10, 10, 20, 20).build();
-        this.addDrawableChild(backButton);
 
-        // 101 Halls button
+
+        int buttonY = this.height / 2 - 10;
+
         ButtonWidget hallsButton = ButtonWidget.builder(Text.literal("101 Halls"),
                         (button) -> MinecraftClient.getInstance().setScreen(new Hallway101Screen(this)))
-                .dimensions(this.width / 2 - 50, this.height / 2 - 10, 100, 20).build();
+                .dimensions(this.width / 2 - 50, buttonY, 100, 20).build();
         this.addDrawableChild(hallsButton);
     }
 
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 40, 0xFFFFFF);
-
-        int yStart = 70;
-        int lineHeight = 12;
-
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "Welcome to the Ingenuity Puzzle Info Menu!", this.width / 2, yStart, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "This screen will contain information on Legacy puzzles", this.width / 2, yStart + lineHeight, 0xFFAA00);
-        context.drawCenteredTextWithShadow(this.textRenderer,
-                "Currently it's a WIP", this.width / 2, yStart + lineHeight * 2, 0xFFAA00);
-
-        super.render(context, mouseX, mouseY, delta);
-    }
+    // REMOVED: init() is handled by AbstractGUI's call to setupGUI()
+    // REMOVED: render() is handled by AbstractGUI, which draws title and infoLines
 }
 
 
@@ -176,11 +165,6 @@ class Hallway101Screen extends Screen {
 
     private void setupButtons() {
         this.clearChildren();
-
-        // Back button
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("<"),
-                        (button) -> MinecraftClient.getInstance().setScreen(parent))
-                .dimensions(10, 10, 20, 20).build());
 
         // Prev page
         if (currentPage > 0) {
