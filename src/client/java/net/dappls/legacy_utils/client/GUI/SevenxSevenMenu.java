@@ -7,6 +7,7 @@ import net.dappls.legacy_utils.client.SevenxSeven.LoreMatrix;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.input.AbstractInput;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import java.util.HashMap;
@@ -38,9 +39,9 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
         int rotationY = BODY_Y_START + (ROTATION_TEXT_LINE * LINE_HEIGHT);
         int rotationColor;
         if (rotation == 0) {
-            rotationColor = 0x00FF00; // Bright Green for 0 degrees
+            rotationColor = 0xFF00FF00; // Bright Green for 0 degrees
         } else {
-            rotationColor = 0xFF4444;     // Amber for any other rotation
+            rotationColor = 0xFFFF4444;     // Amber for any other rotation
         }
         context.drawCenteredTextWithShadow(this.textRenderer,
                 "Rotation: " + rotation + "°",
@@ -50,39 +51,83 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
     private static class BlockPosButton extends ButtonWidget {
         private int displayValue;
         private final BlockPos pos;
-        private final int matrixRow; // Store matrix coordinates
-        private final int matrixCol; // Store matrix coordinates
+        private final int matrixRow;
+        private final int matrixCol;
+        private final boolean isStart;
 
         public BlockPosButton(int x, int y, int width, int height, boolean isStart, BlockPos pos,
-                              int row, int col, // New parameters
-                              NarrationSupplier narration) {
-            super(x, y, width, height, Text.literal(isStart ? "Start" : ""), b -> {}, narration);
+                              int row, int col, NarrationSupplier narration) {
+            super(x, y, width, height, net.minecraft.text.Text.literal(isStart ? "Start" : ""), b -> {}, narration);
             this.pos = pos;
             this.matrixRow = row;
             this.matrixCol = col;
+            this.isStart = isStart;
             this.displayValue = 0;
             updateText();
         }
 
         @Override
-        public void onPress() {
-            // Cycle the display value (0 to 5)
+        public void onPress(AbstractInput input) {
             displayValue = (displayValue + 1) % 6;
             updateText();
-
-            // --- FIX: Update the global matrix on button click ---
             if (SevenxSevenMatrix.matrix7x7 != null) {
                 SevenxSevenMatrix.matrix7x7[this.matrixRow][this.matrixCol] = this.displayValue;
             }
         }
-        private void updateText() {
-            this.setMessage(displayValue == 0 ? Text.literal("")
-                    : Text.literal(Integer.toString(displayValue)));
-        }
-        public BlockPos getBlockPos() { return pos; }
-        public int getDisplayValue() { return displayValue; }
 
+        private void updateText() {
+            // We keep the message logic for narration/accessibility,
+            // but we will draw the actual string manually in drawIcon to ensure visibility.
+            if (displayValue >= 1 && displayValue <= 4) {
+                this.setMessage(net.minecraft.text.Text.literal(Integer.toString(displayValue)));
+            } else if (isStart && displayValue == 0) {
+                this.setMessage(net.minecraft.text.Text.literal("Start"));
+            } else {
+                this.setMessage(net.minecraft.text.Text.literal(""));
+            }
+        }
+
+        @Override
+        protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+            // 1. Determine the Opaque Color (FF instead of AA)
+            int color = switch(displayValue) {
+                case 1, 2, 3, 4 -> 0xFF444444;
+                case 5          -> 0xFFFFFFFF; // Solid White
+                default         -> 0xFF222222;
+            };
+
+            // 2. Draw the background box
+            context.fill(getX(), getY(), getX() + width, getY() + height, color);
+
+            // 3. Manually Render the Text (Fixes the "Missing Numbers" issue)
+            String toDraw = "";
+            int textColor = 0xFFFFFFFF; // Default white text
+
+            if (displayValue >= 1 && displayValue <= 4) {
+                toDraw = Integer.toString(displayValue);
+            } else if (displayValue == 5) {
+                textColor = 0xFF000000;
+                toDraw = "";
+            } else if (isStart) {
+                toDraw = "";
+            }
+
+            if (!toDraw.isEmpty()) {
+                MinecraftClient client = MinecraftClient.getInstance();
+                context.drawCenteredTextWithShadow(
+                        client.textRenderer,
+                        toDraw,
+                        getX() + width / 2,
+                        getY() + (height - 8) / 2,
+                        textColor
+                );
+            }
+        }
+
+        public int getDisplayValue() { return displayValue; }
+        public BlockPos getBlockPos() { return pos; }
     }
+
 
     private void createAllButtons() {
         for (int i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
@@ -106,6 +151,9 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
     private void generateTable() {
         int[][] matrix = SevenxSevenMatrix.matrix7x7;
         if (matrix == null) return;
+
+        // RESET rotation to a "not found" state or default before checking
+        this.rotation = -1;
 
         int gridWidth = GRID_SIZE * (BUTTON_SIZE + SPACING) - SPACING;
         int startX = (this.width - gridWidth) / 2;
@@ -136,13 +184,14 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
 
     @Override
     protected void setupGUI() {
-        this.addLine("Welcome to the " + this.title.getString() + "!", 0xffe6a7);
-
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xFFffe6a7);
+        this.clearChildren();
+        this.buttonMap.clear();
         this.addLine(null);
-        this.addLine("Hold the item and press load to load the numbers into the grid"); // Line 4
+        this.addLine("Hold the item and press load to load the numbers into the grid");
         this.addLine("rotate until the rotation is 0°");
         this.addLine("On the rare chance a number is on the start tile, you MUST input the start tile and NOT the button");
-        this.addLine("1-> Red     2 -> Yellow     3 -> Green     4 -> Blue     5(yellow tile)-> White");
+        this.addLine("Solve in the order: red, yellow, green, blue");
 
 
 

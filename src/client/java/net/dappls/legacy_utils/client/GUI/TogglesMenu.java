@@ -17,7 +17,7 @@ public class TogglesMenu extends AbstractLegacyGUI {
 
     @Override
     protected void setupGUI() {
-        this.addLine("Welcome to the " + this.title.getString() + "!", 0xd0f4de);
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xFFd0f4de);
         this.addLine(null);
         this.addLine("This menu has toggleable trails to help navigate through Lore areas!");
         this.addLine("The trails are NOT perfect, only providing general direction");

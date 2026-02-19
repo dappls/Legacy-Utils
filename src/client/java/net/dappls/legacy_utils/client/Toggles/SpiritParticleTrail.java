@@ -5,12 +5,10 @@ import net.dappls.legacy_utils.client.Util.ChatUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 
@@ -63,8 +61,6 @@ public class SpiritParticleTrail {
     private static final List<BlockPos> Valley1Path = new ArrayList<>();
     private static final List<BlockPos> Valley2Path = new ArrayList<>();
     private static final List<BlockPos> Valley25Path = new ArrayList<>();
-    private static final List<BlockPos> MineShaft25Path1 = new ArrayList<>();
-    private static final List<BlockPos> MineShaft25Path2 = new ArrayList<>();
     private static final List<BlockPos> Valley3Path = new ArrayList<>();
     private static final List<BlockPos> MineShaft3Path1 = new ArrayList<>();
     private static final List<BlockPos> MineShaft3Path2 = new ArrayList<>();
@@ -79,8 +75,6 @@ public class SpiritParticleTrail {
         Valley1Path.clear();
         Valley2Path.clear();
         Valley25Path.clear();
-        MineShaft25Path1.clear();
-        MineShaft25Path2.clear();
         Valley3Path.clear();
         MineShaft3Path1.clear();
         MineShaft3Path2.clear();
@@ -94,9 +88,6 @@ public class SpiritParticleTrail {
         Valley2Path.addAll(TrailFileLoader.load("valley2"));
         Valley25Path.addAll(TrailFileLoader.load("valley2_5"));
 
-        MineShaft25Path1.addAll(TrailFileLoader.load("mineshaft2.5_1"));
-        MineShaft25Path2.addAll(TrailFileLoader.load("mineshaft2.5_2"));
-
         Valley3Path.addAll(TrailFileLoader.load("valley3"));
         MineShaft3Path1.addAll(TrailFileLoader.load("mineshaft3_1"));
         MineShaft3Path2.addAll(TrailFileLoader.load("mineshaft3_2"));
@@ -105,12 +96,12 @@ public class SpiritParticleTrail {
     public static void register() {
         init();
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            MatrixStack matrices = context.matrixStack();
-            Camera camera = context.camera();
+            MatrixStack matrices = context.matrices();
+            Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
-            if (consumers == null || activeTrail.isEmpty()) return;
+            if (activeTrail.isEmpty()) return;
 
-            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
             int total = activeTrail.size();
 
             for (int i = 0; i < total; i++) {
@@ -127,7 +118,7 @@ public class SpiritParticleTrail {
             }
         });
 
-        // Remove blocks player touches
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.world == null || currentMode == SpiritTrailMode.OFF) {
                 activeTrail.clear();
@@ -149,8 +140,6 @@ public class SpiritParticleTrail {
             case VALLEY1 -> activeTrail.addAll(Valley1Path);
             case VALLEY2 -> activeTrail.addAll(Valley2Path);
             case VALLEY2_5 -> activeTrail.addAll(Valley25Path);
-            case MINESHAFT2_5_1 -> activeTrail.addAll(MineShaft25Path1);
-            case MINESHAFT2_5_2 -> activeTrail.addAll(MineShaft25Path2);
             case VALLEY3 -> activeTrail.addAll(Valley3Path);
             case MINESHAFT3_1 -> activeTrail.addAll(MineShaft3Path1);
             case MINESHAFT3_2 -> activeTrail.addAll(MineShaft3Path2);

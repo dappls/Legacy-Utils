@@ -15,7 +15,7 @@ public class LightsOutMenu extends AbstractLegacyGUI {
 
     @Override
     protected void setupGUI() {
-        this.addLine("Welcome to the " + this.title.getString() + "!", 0xeb6424);
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xFFeb6424);
         this.addLine(null);
         this.addLine("Press the desired button to solve the puzzle");
 

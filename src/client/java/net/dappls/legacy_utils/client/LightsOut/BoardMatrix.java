@@ -82,7 +82,7 @@ public class BoardMatrix {
         if (lampsPos == null || lampsPos.isEmpty()) return false;
 
         BlockPos center = lampsPos.get(17);
-        Vec3d playerPos = MinecraftClient.getInstance().player.getPos();
+        Vec3d playerPos = MinecraftClient.getInstance().player.getBlockPos().toCenterPos();
 
         if (playerPos.distanceTo(new Vec3d(center.getX(), center.getY(), center.getZ())) > 40.0) {
             MinecraftClient.getInstance().player.sendMessage(

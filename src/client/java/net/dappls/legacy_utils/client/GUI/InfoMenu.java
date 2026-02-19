@@ -48,7 +48,7 @@ class Hallway101Screen extends Screen {
     private static final int ENTRIES_PER_PAGE = 25;
 
     protected Hallway101Screen(Screen parent) {
-        super(Text.literal("101 Hallways - Admin:26257484"));
+        super(Text.literal("101 Hallways"));
         this.parent = parent;
     }
 
@@ -188,7 +188,7 @@ class Hallway101Screen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFFFF);
 
         int yStart = 50;
         int lineHeight = 10;
@@ -198,12 +198,12 @@ class Hallway101Screen extends Screen {
 
         for (int i = startIndex; i < endIndex; i++) {
             int y = yStart + (i - startIndex) * lineHeight;
-            context.drawTextWithShadow(this.textRenderer, DOORS[i], 20, y, 0xAAAAAA);
+            context.drawTextWithShadow(this.textRenderer, DOORS[i], 20, y, 0xFFAAAAAA);
         }
 
         context.drawCenteredTextWithShadow(this.textRenderer,
                 "Page " + (currentPage + 1) + " / " + ((DOORS.length + ENTRIES_PER_PAGE - 1) / ENTRIES_PER_PAGE),
-                this.width / 2, this.height - 50, 0xFFFFFF);
+                this.width / 2, this.height - 50, 0xFFFFFFFF);
 
         super.render(context, mouseX, mouseY, delta);
     }

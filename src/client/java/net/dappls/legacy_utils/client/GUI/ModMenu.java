@@ -17,7 +17,7 @@ public class ModMenu extends AbstractLegacyGUI {
     // MODIFIED: Content moved from init() to setupGUI()
     @Override
     protected void setupGUI() {
-        this.addLine("Welcome to the " + this.title.getString() + "!", 0xa5be00);
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xFFa5be00);
         this.addLine(null);
         // Since setupGUI is called within AbstractGUI's init, client will be non-null
         if (client == null) return;

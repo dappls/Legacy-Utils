@@ -4,65 +4,82 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
-import org.joml.Matrix4f;
 
 public class TrailRenderer {
+
     public static void renderCube(MatrixStack matrices, VertexConsumer buffer, Camera camera, BlockPos pos, float r, float g, float b) {
         matrices.push();
-        double camX = camera.getPos().x;
-        double camY = camera.getPos().y;
-        double camZ = camera.getPos().z;
+
+        // Translate relative to camera
+        double camX = camera.getCameraPos().x;
+        double camY = camera.getCameraPos().y;
+        double camZ = camera.getCameraPos().z;
         matrices.translate(pos.getX() - camX, pos.getY() - camY, pos.getZ() - camZ);
-        Matrix4f matrix = matrices.peek().getPositionMatrix();
 
-        float minX = 0.35f, maxX = 0.65f;
-        float minY = 0.35f, maxY = 0.65f;
-        float minZ = 0.35f, maxZ = 0.65f;
+        // Use the Entry (peek) for both position and normal calls
+        MatrixStack.Entry entry = matrices.peek();
 
-        renderCuboid(buffer, matrix, r, g, b, minX, maxX, minY, maxY, minZ, maxZ);
+        // Small cube bounds
+        float min = 0.35f, max = 0.65f;
+
+        renderCuboid(buffer, entry, r, g, b, min, max, min, max, min, max);
+
         matrices.pop();
     }
-    private static void renderCuboid(VertexConsumer buffer, Matrix4f matrix, float r, float g, float b, float minX, float maxX, float minY, float maxY, float minZ, float maxZ) {
-        // Front face
-        buffer.vertex(matrix, minX, minY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,1);
-        buffer.vertex(matrix, maxX, minY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,1);
-        buffer.vertex(matrix, maxX, maxY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,1);
-        buffer.vertex(matrix, minX, maxY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,1);
 
+    private static void renderCuboid(VertexConsumer buffer, MatrixStack.Entry entry,
+                                     float r, float g, float b,
+                                     float minX, float maxX, float minY, float maxY, float minZ, float maxZ) {
+        float a = 0.8f;
+        int light = 0xF000F0;
 
-        // Back face
-        buffer.vertex(matrix, minX, minY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,-1);
-        buffer.vertex(matrix, maxX, minY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,-1);
-        buffer.vertex(matrix, maxX, maxY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,-1);
-        buffer.vertex(matrix, minX, maxY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,0,-1);
+        // Front face (Z+)
+        v(buffer, entry, minX, minY, maxZ, r, g, b, a, light, 0, 0, 1);
+        v(buffer, entry, maxX, minY, maxZ, r, g, b, a, light, 0, 0, 1);
+        v(buffer, entry, maxX, maxY, maxZ, r, g, b, a, light, 0, 0, 1);
+        v(buffer, entry, minX, maxY, maxZ, r, g, b, a, light, 0, 0, 1);
 
+        // Back face (Z-)
+        v(buffer, entry, minX, minY, minZ, r, g, b, a, light, 0, 0, -1);
+        v(buffer, entry, maxX, minY, minZ, r, g, b, a, light, 0, 0, -1);
+        v(buffer, entry, maxX, maxY, minZ, r, g, b, a, light, 0, 0, -1);
+        v(buffer, entry, minX, maxY, minZ, r, g, b, a, light, 0, 0, -1);
 
-        // Left face
-        buffer.vertex(matrix, minX, minY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(-1,0,0);
-        buffer.vertex(matrix, minX, minY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(-1,0,0);
-        buffer.vertex(matrix, minX, maxY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(-1,0,0);
-        buffer.vertex(matrix, minX, maxY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(-1,0,0);
+        // Left face (X-)
+        v(buffer, entry, minX, minY, minZ, r, g, b, a, light, -1, 0, 0);
+        v(buffer, entry, minX, minY, maxZ, r, g, b, a, light, -1, 0, 0);
+        v(buffer, entry, minX, maxY, maxZ, r, g, b, a, light, -1, 0, 0);
+        v(buffer, entry, minX, maxY, minZ, r, g, b, a, light, -1, 0, 0);
 
+        // Right face (X+)
+        v(buffer, entry, maxX, minY, minZ, r, g, b, a, light, 1, 0, 0);
+        v(buffer, entry, maxX, minY, maxZ, r, g, b, a, light, 1, 0, 0);
+        v(buffer, entry, maxX, maxY, maxZ, r, g, b, a, light, 1, 0, 0);
+        v(buffer, entry, maxX, maxY, minZ, r, g, b, a, light, 1, 0, 0);
 
-        // Right face
-        buffer.vertex(matrix, maxX, minY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(1,0,0);
-        buffer.vertex(matrix, maxX, minY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(1,0,0);
-        buffer.vertex(matrix, maxX, maxY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(1,0,0);
-        buffer.vertex(matrix, maxX, maxY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(1,0,0);
+        // Top face (Y+)
+        v(buffer, entry, minX, maxY, minZ, r, g, b, a, light, 0, 1, 0);
+        v(buffer, entry, maxX, maxY, minZ, r, g, b, a, light, 0, 1, 0);
+        v(buffer, entry, maxX, maxY, maxZ, r, g, b, a, light, 0, 1, 0);
+        v(buffer, entry, minX, maxY, maxZ, r, g, b, a, light, 0, 1, 0);
 
+        // Bottom face (Y-)
+        v(buffer, entry, minX, minY, minZ, r, g, b, a, light, 0, -1, 0);
+        v(buffer, entry, maxX, minY, minZ, r, g, b, a, light, 0, -1, 0);
+        v(buffer, entry, maxX, minY, maxZ, r, g, b, a, light, 0, -1, 0);
+        v(buffer, entry, minX, minY, maxZ, r, g, b, a, light, 0, -1, 0);
+    }
 
-        // Top face
-        buffer.vertex(matrix, minX, maxY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,1,0);
-        buffer.vertex(matrix, maxX, maxY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,1,0);
-        buffer.vertex(matrix, maxX, maxY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,1,0);
-        buffer.vertex(matrix, minX, maxY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,1,0);
+    private static void v(VertexConsumer buffer, MatrixStack.Entry entry,
+                          float x, float y, float z,
+                          float r, float g, float b, float a,
+                          int light, float nx, float ny, float nz) {
 
-
-        // Bottom face
-        buffer.vertex(matrix, minX, minY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,-1,0);
-        buffer.vertex(matrix, maxX, minY, minZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,-1,0);
-        buffer.vertex(matrix, maxX, minY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,-1,0);
-        buffer.vertex(matrix, minX, minY, maxZ).color(r,g,b, (float) 0.8).light(0xF000F0).normal(0,-1,0);
+        // .vertex() uses the Matrix4f from the entry
+        // .normal() uses the Entry itself
+        buffer.vertex(entry.getPositionMatrix(), x, y, z)
+                .color(r, g, b, a)
+                .light(light)
+                .normal(entry, nx, ny, nz);
     }
 }
-

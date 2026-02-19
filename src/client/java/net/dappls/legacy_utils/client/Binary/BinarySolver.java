@@ -3,12 +3,9 @@ package net.dappls.legacy_utils.client.Binary;
 import net.dappls.legacy_utils.client.Util.TrailRenderer;
 import net.dappls.legacy_utils.client.Util.ChatUtils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
@@ -87,12 +84,11 @@ public class BinarySolver {
             World world = MinecraftClient.getInstance().world;
             if (world == null) return;
 
-            MatrixStack matrices = context.matrixStack();
-            Camera camera = context.camera();
+            MatrixStack matrices = context.matrices();
+            Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
-            if (consumers == null) return;
 
-            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
 
             for (BlockPos leverPos : errorLevers) {
                 TrailRenderer.renderCube(matrices, buffer, camera, leverPos, 1.0f, 0.2f, 0.2f);
@@ -141,7 +137,6 @@ public class BinarySolver {
         }
     }
 
-    // --- Helpers ---
 
     private static boolean getLampState(World world) {
         return world.getBlockState(BinarySolver.LAMP_POS).isOf(net.minecraft.block.Blocks.REDSTONE_LAMP) &&

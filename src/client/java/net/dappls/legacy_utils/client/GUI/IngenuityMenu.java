@@ -22,7 +22,7 @@ public class IngenuityMenu extends AbstractLegacyGUI {
 
     @Override
     protected void setupGUI() {
-        this.addLine("Welcome to the " + this.title.getString() + "!", 0x68D8D6);
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xFF68D8D6);
         this.addLine(null);
         this.addLine("Click 'Run Solver' to calculate the solution.");
         this.addLine("Use the Chat toggle to silence solver output.");

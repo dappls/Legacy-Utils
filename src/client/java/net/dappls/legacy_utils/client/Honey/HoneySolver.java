@@ -2,13 +2,10 @@ package net.dappls.legacy_utils.client.Honey;
 
 import net.dappls.legacy_utils.client.Util.ChatUtils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.block.Blocks;
@@ -30,7 +27,9 @@ public class HoneySolver {
     public static final List<Block> WALL_BLOCKS = Arrays.asList(
             Blocks.ORANGE_STAINED_GLASS,
             Blocks.STRIPPED_ACACIA_LOG,
-            Blocks.STRIPPED_ACACIA_WOOD
+            Blocks.STRIPPED_ACACIA_WOOD,
+            Blocks.RESIN_CLUMP,
+            Blocks.HONEY_BLOCK
     );
     public static final BlockPos finalPressurePlate = new BlockPos(9777, 55, 52329);
     public enum CardinalDirections { NORTH, EAST, SOUTH, WEST }
@@ -170,11 +169,11 @@ public class HoneySolver {
 
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (!trailActive || MinecraftClient.getInstance().world == null || solvedPath.isEmpty()) return;
-            MatrixStack matrices = context.matrixStack();
-            Camera camera = context.camera();
+            MatrixStack matrices = context.matrices();
+            Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
-            if (consumers == null || solvedPath.isEmpty()) return;
-            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
+            if (solvedPath.isEmpty()) return;
+            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
             for (BlockPos pos : solvedPath) {
 
                 renderCube(matrices, buffer, camera, pos, 5,80,220);

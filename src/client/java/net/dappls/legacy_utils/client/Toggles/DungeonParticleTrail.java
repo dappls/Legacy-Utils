@@ -5,12 +5,9 @@ import net.dappls.legacy_utils.client.Util.ChatUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 
@@ -62,12 +59,12 @@ public class DungeonParticleTrail {
     public static void register() {
         init();
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            MatrixStack matrices = context.matrixStack();
-            Camera camera = context.camera();
+            MatrixStack matrices = context.matrices();
+            Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
-            if (consumers == null || activeTrail.isEmpty()) return;
+            if (activeTrail.isEmpty()) return;
 
-            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
             int total = activeTrail.size();
 
             for (int i = 0; i < total; i++) {

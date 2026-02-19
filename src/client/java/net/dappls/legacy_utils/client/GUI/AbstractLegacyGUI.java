@@ -11,8 +11,8 @@ import java.util.List;
 
 public abstract class AbstractLegacyGUI extends Screen {
 
-    protected static final int LAVENDER = 0xE9EBF8;
-    protected static final int GRANITE = 0xa69ca5; //
+    protected static final int LAVENDER = 0xFFE9EBF8;
+    protected static final int GRANITE = 0xFFa69ca5; //
 
     private static final int TITLE_Y = 40;
     private static final int BODY_Y_START = 50;
@@ -84,13 +84,11 @@ public abstract class AbstractLegacyGUI extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, TITLE_Y, 0xFFFFFF);
-
-
-        // --- MODIFIED: Call drawInfoLines without a color parameter ---
+  //      this.renderBackground(context, mouseX, mouseY, delta);
+        super.render(context, mouseX, mouseY, delta);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, TITLE_Y, 0xFFFFFFFF);
         this.drawInfoLines(context);
 
-        super.render(context, mouseX, mouseY, delta);
+
     }
 }

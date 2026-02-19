@@ -27,7 +27,7 @@ public class BinaryModMenu extends AbstractLegacyGUI {
     @Override
     protected void setupGUI() {
         // --- Static Info Lines ---
-        this.addLine("Welcome to the " + this.title.getString() + "!", 0x26547C);
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xFF26547C);
         this.addLine(null);
         this.addLine("Binary Solver Instructions:");
         this.addLine("Enter number from paper to convert it to binary");
@@ -138,7 +138,7 @@ public class BinaryModMenu extends AbstractLegacyGUI {
         int instrY = binaryInput.getY() + 40;
 
         for (String line : solutionLines) {
-            context.drawCenteredTextWithShadow(this.textRenderer, line, this.width / 2, instrY, 0x00FF00);
+            context.drawCenteredTextWithShadow(this.textRenderer, line, this.width / 2, instrY, 0xFF00FF00);
             instrY += 12;
         }
 

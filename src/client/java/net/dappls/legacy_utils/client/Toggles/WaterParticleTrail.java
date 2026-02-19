@@ -3,14 +3,12 @@ package net.dappls.legacy_utils.client.Toggles;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -73,12 +71,10 @@ public class WaterParticleTrail {
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             if (!trailEnabled || activeTrail.isEmpty()) return;
 
-            MatrixStack matrices = context.matrixStack();
-            Camera camera = context.camera();
+            MatrixStack matrices = context.matrices();
+            Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
-            if (consumers == null) return;
-
-            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
             int total = activeTrail.size();
 
             for (int i = 0; i < total; i++) {
@@ -86,7 +82,6 @@ public class WaterParticleTrail {
                 float hue = (float) i / total;
                 Color color = Color.getHSBColor(hue, 1f, 1f);
 
-                assert matrices != null;
                 renderCube(
                         matrices, buffer, camera, pos,
                         color.getRed() / 255f,
@@ -123,7 +118,7 @@ public class WaterParticleTrail {
 
     private static boolean hasIronPickaxe(MinecraftClient client) {
         assert client.player != null;
-        for (ItemStack stack : client.player.getInventory().main) {
+        for (ItemStack stack : client.player.getInventory().getMainStacks()) {
             if (stack.getItem() == Items.IRON_PICKAXE) return true;
         }
         return false;

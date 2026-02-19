@@ -1,30 +1,18 @@
 package net.dappls.legacy_utils.client.SevenxSeven;
 
 public class SevenxSevenMatrix {
-    public static int[][] matrix7x7 = {
-            { 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 0, 0, 0, 0, 0, 0 }
-    };
+    public static int[][] matrix7x7 = new int[7][7];
+
     public static void rotateMatrix90Clockwise() {
-        int n = matrix7x7.length;
+        int n = 7;
+        int[][] rotated = new int[n][n];
 
-        for (int i = 0; i < n / 2; i++) {
-            int[] temp = matrix7x7[i];
-            matrix7x7[i] = matrix7x7[n - 1 - i];
-            matrix7x7[n - 1 - i] = temp;
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                int temp = matrix7x7[i][j];
-                matrix7x7[i][j] = matrix7x7[j][i];
-                matrix7x7[j][i] = temp;
+        for (int r = 0; r < n; r++) {
+            for (int c = 0; c < n; c++) {
+                // Standard 90-degree clockwise formula
+                rotated[c][n - 1 - r] = matrix7x7[r][c];
             }
         }
+        matrix7x7 = rotated;
     }
 }

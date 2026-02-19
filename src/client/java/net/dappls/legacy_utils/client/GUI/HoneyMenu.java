@@ -23,7 +23,7 @@ public class HoneyMenu extends AbstractLegacyGUI {
 
     @Override
     protected void setupGUI() {
-        this.addLine("Welcome to the " + this.title.getString() + "!", 0xEBA937);
+        this.addLine("Welcome to the " + this.title.getString() + "!", 0xFFEBA937);
         this.addLine(null);
         this.addLine("Toggle the solver on to solve all candles"); // Line 2
         this.addLine("Turn the solver off before clicking the final button"); // Line 3
@@ -63,7 +63,7 @@ public class HoneyMenu extends AbstractLegacyGUI {
         super.render(context, mouseX, mouseY, delta);
 
         String state = honeyActive ? "Status: ACTIVE" : "Status: OFF";
-        int stateColor = honeyActive ? 0x00FF00 : 0xFF4444;
+        int stateColor = honeyActive ? 0xFF00FF00 : 0xFFFF4444;
 
         context.drawCenteredTextWithShadow(this.textRenderer, state, this.width / 2, STATUS_LINE_Y, stateColor);
     }

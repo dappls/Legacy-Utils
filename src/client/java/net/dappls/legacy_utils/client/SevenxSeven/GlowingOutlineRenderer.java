@@ -1,7 +1,6 @@
 package net.dappls.legacy_utils.client.SevenxSeven;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
@@ -22,8 +21,8 @@ public class GlowingOutlineRenderer {
     }
     public static void register() {
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            MatrixStack matrices = context.matrixStack();
-            Vec3d camPos = client.gameRenderer.getCamera().getPos();
+            MatrixStack matrices = context.matrices();
+            Vec3d camPos = client.gameRenderer.getCamera().getCameraPos();
 
             for (RenderPos rp : positions) {
                 renderOutline(matrices, rp.pos, camPos, rp.r, rp.g, rp.b, rp.a);
@@ -63,27 +62,26 @@ public class GlowingOutlineRenderer {
                 {4,5},{5,6},{6,7},{7,4},
                 {0,4},{1,5},{2,6},{3,7}
         };
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableDepthTest();
+
         VertexConsumerProvider.Immediate buffer = client.getBufferBuilders().getEntityVertexConsumers();
-        VertexConsumer vertexConsumer = buffer.getBuffer(RenderLayer.getLines());
+        VertexConsumer vertexConsumer = buffer.getBuffer(RenderLayers.LINES);
 
         for (int[] e : edges) {
             Vec3d start = corners[e[0]];
             Vec3d end = corners[e[1]];
-            vertexConsumer.vertex(matrices.peek().getPositionMatrix(),
-                            (float) start.x, (float) start.y, (float) start.z)
+
+            vertexConsumer.vertex(matrices.peek().getPositionMatrix(), (float) start.x, (float) start.y, (float) start.z)
                     .color(r, g, b, a)
-                    .normal(0f, 1f, 0f);
-            vertexConsumer.vertex(matrices.peek().getPositionMatrix(),
-                            (float) end.x, (float) end.y, (float) end.z)
+                    .normal(matrices.peek(), 0f, 1f, 0f)
+                    .lineWidth(2.0f);
+
+
+            vertexConsumer.vertex(matrices.peek().getPositionMatrix(), (float) end.x, (float) end.y, (float) end.z)
                     .color(r, g, b, a)
-                    .normal(0f, 1f, 0f);
+                    .normal(matrices.peek(), 0f, 1f, 0f)
+                    .lineWidth(2.0f);
         }
 
         buffer.draw();
-        RenderSystem.enableDepthTest();
-        RenderSystem.disableBlend();
     }
 }

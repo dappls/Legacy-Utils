@@ -33,7 +33,7 @@ public class PuzzleListeners {
 
 
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
-            if (world == null || !world.isClient) return ActionResult.PASS;
+            if (world == null || !world.isClient()) return ActionResult.PASS;
             BlockPos pos = hitResult.getBlockPos();
             BlockState state = world.getBlockState(pos);
 

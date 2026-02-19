@@ -120,7 +120,7 @@ public class PositionRecorderScreen extends Screen {
     private static void registerTickEvent() {
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             if (recording && mc.player != null) {
-                Vec3d pos = mc.player.getPos();
+                Vec3d pos = mc.player.getBlockPos().toCenterPos();
                 // Round to nearest integer
                 int x = (int) Math.floor(pos.x);
                 int y = (int) Math.floor(pos.y);
