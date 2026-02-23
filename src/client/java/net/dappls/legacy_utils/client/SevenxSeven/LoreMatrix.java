@@ -37,25 +37,42 @@ public class LoreMatrix {
         final int[] colIdx = {0};
 
         line.visit((style, content) -> {
-            String text = content.trim();
+            // Remove all zero-width characters and whitespace
+            String text = content.replaceAll("[\\u200B-\\u200D\\uFEFF\\s]", "");
             if (text.isEmpty()) return Optional.empty();
 
-            // Check for Yellow (Case 5) via RGB color
-            if (style.getColor() != null) {
-                int rgb = style.getColor().getRgb();
-                // Check common Yellow/Gold hex values
-                if (rgb == 0xFFFF00 || rgb == 0xFFD700 || rgb == 0xFFF700) {
-                    if (colIdx[0] < 7) row[colIdx[0]++] = 5;
-                    return Optional.empty();
-                }
-            }
-
-            // Check for Numbers (1-4)
+            // Check for Numbers (1-4) - check this FIRST before color checks
+            // This handles cases like "‌1‌" after removing zero-width chars
             if (text.matches("\\d+")) {
                 if (colIdx[0] < 7) row[colIdx[0]++] = Integer.parseInt(text);
+                return Optional.empty();
             }
-            // Handle placeholders like '█' if they represent empty cells
-            else if (text.equals("█")) {
+
+            // Handle placeholders like '█' - check for colored blocks
+            if (text.equals("█")) {
+                if (style.getColor() != null) {
+                    int rgb = style.getColor().getRgb();
+
+                    // Yellow/Gold blocks (Case 5)
+                    if (rgb == 0xFFF75F || rgb == 0xFFFF00 || rgb == 0xFFD700 || rgb == 0xFFF700) {
+                        if (colIdx[0] < 7) row[colIdx[0]++] = 5;
+                        return Optional.empty();
+                    }
+
+                    // Cyan blocks (might be another value, or skip)
+                    if (rgb == 0xBFFFFF) {
+                        if (colIdx[0] < 7) row[colIdx[0]++] = 0; // Treat as empty or assign different value
+                        return Optional.empty();
+                    }
+
+                    // Dark blocks (might be empty or different)
+                    if (rgb == 0x222222) {
+                        if (colIdx[0] < 7) row[colIdx[0]++] = 0;
+                        return Optional.empty();
+                    }
+                }
+
+                // Default gray/uncolored blocks are empty (0)
                 if (colIdx[0] < 7) row[colIdx[0]++] = 0;
             }
 

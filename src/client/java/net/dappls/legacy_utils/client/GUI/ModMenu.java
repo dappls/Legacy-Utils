@@ -49,7 +49,7 @@ public class ModMenu extends Screen {
             ButtonWidget honeyMazeButton = ButtonWidget.builder(Text.literal("Honey Maze"), (button) -> client.setScreen(new HoneyMenu())).dimensions(centerX, startY + (buttonHeight + spacing) * 5, buttonWidth, buttonHeight).build();
             this.addDrawableChild(honeyMazeButton);
 
-            ButtonWidget ithilSolverButton = ButtonWidget.builder(Text.literal("Ithil Solver"), (button) -> client.setScreen(new IthilMenu())).dimensions(centerX, startY + (buttonHeight + spacing) * 6, buttonWidth, buttonHeight).build();
+            ButtonWidget ithilSolverButton = ButtonWidget.builder(Text.literal("Ithil"), (button) -> client.setScreen(new IthilMenu())).dimensions(centerX, startY + (buttonHeight + spacing) * 6, buttonWidth, buttonHeight).build();
             this.addDrawableChild(ithilSolverButton);
 
            // if (client.player != null && "G12w".equals(client.player.getName().getString())) {
