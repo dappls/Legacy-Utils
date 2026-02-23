@@ -43,7 +43,7 @@ public class RenderPuzzle {
 
 
         Matrix4f matrix = matrices.peek().getPositionMatrix();
-        VertexConsumer vertexConsumer = consumers.getBuffer(RenderLayers.LINES);
+        VertexConsumer vertexConsumer = consumers.getBuffer(RenderLayer.getLines());
 
         float r = 0.2f, g = 0.8f, b = 1.0f, a = 0.8f;
 

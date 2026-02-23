@@ -64,7 +64,7 @@ public class GlowingOutlineRenderer {
         };
 
         VertexConsumerProvider.Immediate buffer = client.getBufferBuilders().getEntityVertexConsumers();
-        VertexConsumer vertexConsumer = buffer.getBuffer(RenderLayers.LINES);
+        VertexConsumer vertexConsumer = buffer.getBuffer(RenderLayer.getLines());
 
         for (int[] e : edges) {
             Vec3d start = corners[e[0]];
@@ -72,14 +72,12 @@ public class GlowingOutlineRenderer {
 
             vertexConsumer.vertex(matrices.peek().getPositionMatrix(), (float) start.x, (float) start.y, (float) start.z)
                     .color(r, g, b, a)
-                    .normal(matrices.peek(), 0f, 1f, 0f)
-                    .lineWidth(2.0f);
+                    .normal(matrices.peek(), 0f, 1f, 0f);
 
 
             vertexConsumer.vertex(matrices.peek().getPositionMatrix(), (float) end.x, (float) end.y, (float) end.z)
                     .color(r, g, b, a)
-                    .normal(matrices.peek(), 0f, 1f, 0f)
-                    .lineWidth(2.0f);
+                    .normal(matrices.peek(), 0f, 1f, 0f);
         }
 
         buffer.draw();

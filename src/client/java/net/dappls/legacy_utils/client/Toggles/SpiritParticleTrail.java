@@ -101,7 +101,7 @@ public class SpiritParticleTrail {
             VertexConsumerProvider consumers = context.consumers();
             if (activeTrail.isEmpty()) return;
 
-            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
             int total = activeTrail.size();
 
             for (int i = 0; i < total; i++) {

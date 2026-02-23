@@ -88,7 +88,7 @@ public class BinarySolver {
             Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
 
-            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
 
             for (BlockPos leverPos : errorLevers) {
                 TrailRenderer.renderCube(matrices, buffer, camera, leverPos, 1.0f, 0.2f, 0.2f);

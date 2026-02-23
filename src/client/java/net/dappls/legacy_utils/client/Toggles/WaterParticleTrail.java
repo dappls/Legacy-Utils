@@ -74,7 +74,7 @@ public class WaterParticleTrail {
             MatrixStack matrices = context.matrices();
             Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
-            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
             int total = activeTrail.size();
 
             for (int i = 0; i < total; i++) {

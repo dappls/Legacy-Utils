@@ -87,42 +87,6 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
             }
         }
 
-        @Override
-        protected void drawIcon(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-            // 1. Determine the Opaque Color (FF instead of AA)
-            int color = switch(displayValue) {
-                case 1, 2, 3, 4 -> 0xFF444444;
-                case 5          -> 0xFFFFFFFF; // Solid White
-                default         -> 0xFF222222;
-            };
-
-            // 2. Draw the background box
-            context.fill(getX(), getY(), getX() + width, getY() + height, color);
-
-            // 3. Manually Render the Text (Fixes the "Missing Numbers" issue)
-            String toDraw = "";
-            int textColor = 0xFFFFFFFF; // Default white text
-
-            if (displayValue >= 1 && displayValue <= 4) {
-                toDraw = Integer.toString(displayValue);
-            } else if (displayValue == 5) {
-                textColor = 0xFF000000;
-                toDraw = "";
-            } else if (isStart) {
-                toDraw = "";
-            }
-
-            if (!toDraw.isEmpty()) {
-                MinecraftClient client = MinecraftClient.getInstance();
-                context.drawCenteredTextWithShadow(
-                        client.textRenderer,
-                        toDraw,
-                        getX() + width / 2,
-                        getY() + (height - 8) / 2,
-                        textColor
-                );
-            }
-        }
 
         public int getDisplayValue() { return displayValue; }
         public BlockPos getBlockPos() { return pos; }
@@ -152,7 +116,6 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
         int[][] matrix = SevenxSevenMatrix.matrix7x7;
         if (matrix == null) return;
 
-        // RESET rotation to a "not found" state or default before checking
         this.rotation = -1;
 
         int gridWidth = GRID_SIZE * (BUTTON_SIZE + SPACING) - SPACING;
@@ -171,12 +134,11 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
                 button.updateText();
                 buttons[row][col] = button;
 
-                // check for 5 and set rotation
                 if (matrix[row][col] == 5) {
-                    if (row == 5 && col == 3) rotation = 0;
-                    else if (row == 3 && col == 1) rotation = 90;
-                    else if (row == 1 && col == 3) rotation = 180;
-                    else if (row == 3 && col == 5) rotation = 270;
+                    if (row == 5 && col == 3) this.rotation = 0;
+                    else if (row == 3 && col == 1) this.rotation = 90;
+                    else if (row == 1 && col == 3) this.rotation = 180;
+                    else if (row == 3 && col == 5) this.rotation = 270;
                 }
             }
         }
@@ -225,11 +187,9 @@ public class SevenxSevenMenu extends AbstractLegacyGUI {
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Rotate"), b -> {
                     SevenxSevenMatrix.rotateMatrix90Clockwise();
-                    MinecraftClient.getInstance().setScreen(new SevenxSevenMenu());
+                    generateTable();
                 })
                 .dimensions(startX + buttonWidth + spacing, centerY, buttonWidth, buttonHeight).build());
-
-
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Solve"), b -> solveGrid())
                 .dimensions(startX, centerY + buttonHeight + spacing, buttonWidth, buttonHeight).build());
 

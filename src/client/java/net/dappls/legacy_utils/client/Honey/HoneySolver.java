@@ -173,7 +173,7 @@ public class HoneySolver {
             Camera camera = context.gameRenderer().getCamera();
             VertexConsumerProvider consumers = context.consumers();
             if (solvedPath.isEmpty()) return;
-            VertexConsumer buffer = consumers.getBuffer(RenderLayers.debugQuads());
+            VertexConsumer buffer = consumers.getBuffer(RenderLayer.getDebugQuads());
             for (BlockPos pos : solvedPath) {
 
                 renderCube(matrices, buffer, camera, pos, 5,80,220);
