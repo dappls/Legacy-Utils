@@ -19,8 +19,7 @@ public class NoMenuBlurMixin {
                 current instanceof InfoMenu ||
                 current instanceof IngenuityMenu ||
                 current instanceof LightsOutMenu ||
-                current instanceof SevenxSevenMenu ||
-                current instanceof TogglesMenu) {
+                current instanceof SevenxSevenMenu) {
 
             ci.cancel();
         }
