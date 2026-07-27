@@ -1,5 +1,5 @@
 plugins {
-    id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+    id 'fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
 
@@ -13,6 +13,14 @@ base {
 loom {
     splitEnvironmentSourceSets()
 
+    runs {
+        client {
+            name = "client"
+            vmArg "-Ddevauth.enabled=true"
+            vmArg "-Ddevauth.account=main"
+        }
+    }
+
     mods {
         "legacy_utils" {
             sourceSet sourceSets.main
@@ -23,7 +31,9 @@ loom {
 
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
+    maven { url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1" }
+
+// Add repositories to retrieve artifacts from in here.
     // You should only use this when depending on other mods because
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
@@ -31,7 +41,9 @@ repositories {
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
+    modRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
+
+// To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -96,4 +108,9 @@ publishing {
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
     }
+}
+
+tasks.named("runClient") {
+    jvmArgs "-Ddevauth.enabled=true"
+
 }

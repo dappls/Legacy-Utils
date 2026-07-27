@@ -11,10 +11,10 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "net.dappls.legacy_utils.client.Legacy_utilsClient"
+      "net.dappls.legacy_utils.client.LegacyUtilsClient"
     ],
     "main": [
-      "net.dappls.legacy_utils.Legacy_utils"
+      "net.dappls.legacy_utils.LegacyUtils"
     ]
   },
   "mixins": [
